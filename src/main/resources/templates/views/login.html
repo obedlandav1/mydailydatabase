@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head th:replace="~{fragments/head :: login-head('My daily database')}"></head>
+
+<body>
+    <div class="login-card" id="app" v-cloak>
+        <form id="formLogin" @submit.prevent="login">
+            <img class="mb-3" th:src="@{/img/img-logo-180.png}" alt="mydailydb" height="95" width="245">
+            <div class="form-group mb-3">
+                <label class="form-label">Usuario</label>
+                <input type="text" v-model="usuario" class="form-control"
+                    aria-describedby="Usuario para acceso al sistema." placeholder="Usuario" id="usuario"
+                    name="username" />
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" v-model="password" class="form-control"
+                    aria-describedby="Usuario para acceso al sistema." placeholder="Contraseña" id="password"
+                    name="password" />
+                <div class="invalid-feedback">Este campo es obligatorio.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Ingresar</button>
+        </form>
+        <div th:replace="~{fragments/modals :: general}"></div>
+        <div th:replace="~{fragments/modals :: roles}"></div>
+        <div th:replace="~{fragments/modals :: error}"></div>
+    </div>
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // VARIABLES SESION
+                    user: {},
+                    // VARIABLES LOGIN
+                    usuario: '',
+                    password: '',
+                    // VARIABLES ROL
+                    roles: [],
+                    rolSeleccionado: '',
+                    // VARIABLES GENERALES
+                    modalTitulo: '',
+                    modalMensaje: '',
+                    modalTipo: ''
+                }
+            },
+            methods: {
+                // METODOS GENERALES
+                modalRol(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalRols');
+                },
+                modalGeneral(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalGeneral');
+                },
+                mostrarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(elemento);
+                        modal.show();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                ocultarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getInstance(elemento);
+                        if (modal) modal.hide();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                limpiar() {
+                    this.usuario = '';
+                    this.password = '';
+                    this.modalTitulo = '';
+                    this.modalMensaje = '';
+                    this.modalTipo = '';
+                },
+                // METODOS LOGIN
+                login() {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    if (!this.usuario || !this.password) {
+                        this.modalGeneral('Advertencia', 'Uno o mas campos necesarios están en blanco.', 'text-warning');
+                        return;
+                    }
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+
+                    const payload = {
+                        username: this.usuario,
+                        password: this.password
+                    };
+
+                    axios.post('/api/auth/login', payload, config)
+                        .then(response => {
+                            const data = response.data;
+                            this.user = data;
+                            if (data.roles && data.roles.length > 1) {
+                                this.roles = data.roles;
+                                this.modalRol('Seleccione su rol', 'Tienes más de un rol asignado. Elige con cuál deseas iniciar sesión:', 'text-warning');
+                                return;
+                            } else if (data.roles && data.roles.length === 1) {
+                                this.acceder(data.roles[0].id);
+                            } else {
+                                this.modalGeneral('Error', 'El usuario no tiene roles asignados.', 'text-danger');
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error al iniciar sesión", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 401:
+                                        this.modalGeneral('Error', 'Contraseña incorrecta, verifique su contraseña.', 'text-danger');
+                                        break;
+                                    case 404:
+                                        this.modalGeneral('Usuario no encontrado', 'No existe usuario con ese DNI.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                elegirRol() {
+                    this.ocultarModal('modalRols');
+                    this.acceder(this.rolSeleccionado);
+                },
+                acceder(rolId) {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const rol = this.user.roles.find(r => r.id === rolId);
+                    if (!rol) {
+                        this.modalGeneral('Error', 'Rol no encontrado en la lista del usuario.', 'text-danger');
+                        return;
+                    }
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+
+                    const payload = {
+                        idrol: rolId,
+                        nomrol: rol.nombreLargo
+                    };
+
+                    axios.post('/api/auth/rol', payload, config)
+                        .then(response => {
+                            this.modalGeneral('Bienvenido', 'Inicio de sesión exitoso. Redirigiendo...', 'text-success');
+                            setTimeout(() => {
+                                this.ocultarModal('modalGeneral');
+                                window.location.href = response.data.redirect;
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al fijar rol", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 400:
+                                        this.modalGeneral('Error', 'Solicitud mal formada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 401:
+                                        this.modalGeneral('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 403:
+                                        this.modalGeneral('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                }
+            },
+            mounted() {
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

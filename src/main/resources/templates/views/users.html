@@ -1,0 +1,742 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/administrators}">
+
+<body>
+    <!-- Content -->
+    <div layout:fragment="content">
+        <!-- Dinamic content -->
+        <!-- List -->
+        <div v-if="vista === 'list'" class="container-xxl flex-grow-1 container-p-y">
+            <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Registro /</span> Usuarios
+                </h4>
+                <a @click="cargarVista('create')">
+                    <button type="button" class="btn btn-primary">Crear</button>
+                </a>
+            </div>
+            <!-- Basic Bootstrap Table -->
+            <div class="card">
+                <h5 class="card-header">Registro</h5>
+                <div class="table-responsive text-nowrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Tipo Identidad</th>
+                                <th>Num. Identidad</th>
+                                <th>Celular</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            <tr v-for="(u, i) in usuarios" :key="u.id">
+                                <td>{{ i + 1 }}</td>
+                                <td><strong>{{ u.nombreUsuario }}</strong></td>
+                                <td>{{ u.apellidoUsuario }}</td>
+                                <td>{{ u.tipoIdentidad ? u.tipoIdentidad.nombreCorto : '' }}</td>
+                                <td>{{ u.identidadUsuario }}</td>
+                                <td>{{ u.celularUsuario }}</td>
+                                <td>
+                                    <span class="badge me-1" :class="getEstadoInfo(u.estado).clase">
+                                        {{ getEstadoInfo(u.estado).texto }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
+                                            data-bs-toggle="dropdown">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a @click="modificarpassUsuario(u.id)" class="dropdown-item">
+                                                <i class="bx bx-key me-1"></i> Cambiar password
+                                            </a>
+                                            <a @click="seleccionarUsuario(u.id)" class="dropdown-item">
+                                                <i class="bx bx-edit-alt me-1"></i> Editar
+                                            </a>
+                                            <a href="javascript:void(0);" class="dropdown-item"
+                                                @click="prepararEliminar(u.id)">
+                                                <i class="bx bx-trash me-1"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--/ Basic Bootstrap Table -->
+
+            <!-- Cargando -->
+            <div v-if="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando usuarios...</p>
+            </div>
+            <!-- No hay datos -->
+            <div v-if="!cargando && usuarios.length === 0" class="alert alert-danger w-100 mt-2" role="alert">
+                No existen datos que mostrar
+            </div>
+
+        </div>
+        <!-- /List -->
+
+        <!-- Create -->
+        <div v-if="vista === 'create'" class="container-xxl flex-grow-1 container-p-y">
+            <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Crear /</span> Usuario
+                </h4>
+                <!--<a th:href="@{/administrator/user}">-->
+                <a @click="cargarVista('list')">
+                    <button type="button" class="btn btn-primary">Regresar</button>
+                </a>
+            </div>
+            <!-- Basic Layout -->
+            <div class="col-xxl">
+                <div class="card mb-4">
+                    <!-- Cargando -->
+                    <div v-if="cargando" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Cargando formulario...</p>
+                    </div>
+                    <div v-else="cargando" class="card-body">
+                        <form @submit.prevent="crearUsuario">
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Nombre</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.nombreUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese nombre del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Apellido</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.apellidoUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese apellido del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Tipo Identidad</label>
+                                <div class="col-sm-10">
+                                    <select v-model="usuario.tipoIdentidad.id" class="form-select" required>
+                                        <option :value="null" disabled selected>Seleccione un tipo de identidad</option>
+                                        <option value="1">N/A</option>
+                                        <option value="2">DNI</option>
+                                        <option value="3">CARNET EXT.</option>
+                                        <option value="6">PASAPORTE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Num. de identidad</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.identidadUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese el numero de identidad del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Contraseña</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.passwordUsuario" type="password" class="form-control"
+                                        placeholder="Ingrese la contraseña del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Número celular</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.celularUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese el numero de celular del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Rol usuario</label>
+                                <div class="col-sm-10">
+                                    <div class="row">
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="1"
+                                                    v-model="selectedRols" id="rol-1">
+                                                <label class="form-check-label" for="rol-1">ADMINISTRADOR DE
+                                                    SISTEMA</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="2"
+                                                    v-model="selectedRols" id="rol-2">
+                                                <label class="form-check-label" for="rol-2">GERENCIA GENERAL</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="3"
+                                                    v-model="selectedRols" id="rol-3">
+                                                <label class="form-check-label" for="rol-3">COORDINAR
+                                                    ADMINISTRATIVO</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="4"
+                                                    v-model="selectedRols" id="rol-4">
+                                                <label class="form-check-label" for="rol-4">JEFE DE PROYECTOS</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="5"
+                                                    v-model="selectedRols" id="rol-5">
+                                                <label class="form-check-label" for="rol-5">ASISTENTE
+                                                    ADMINISTRATIVO</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="6"
+                                                    v-model="selectedRols" id="rol-6">
+                                                <label class="form-check-label" for="rol-6">ASISTENTE PROYECTO.</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="7"
+                                                    v-model="selectedRols" id="rol-7">
+                                                <label class="form-check-label" for="rol-7">ADMINISTRADOR DE
+                                                    OBRA</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="8"
+                                                    v-model="selectedRols" id="rol-8">
+                                                <label class="form-check-label" for="rol-8">ALMACENERO</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="9"
+                                                    v-model="selectedRols" id="rol-9">
+                                                <label class="form-check-label" for="rol-9">REGISTRADOR</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="10"
+                                                    v-model="selectedRols" id="rol-10">
+                                                <label class="form-check-label" for="rol-10">DIGITADOR</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row justify-content-end">
+                                <div class="col-sm-10">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Create -->
+
+        <!-- Edit -->
+        <div v-if="vista === 'edit'" class="container-xxl flex-grow-1 container-p-y">
+            <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Editar /</span> Usuario
+                </h4>
+                <!--<a th:href="@{/administrator/user}">-->
+                <a @click="cargarVista('list')">
+                    <button type="button" class="btn btn-primary">Regresar</button>
+                </a>
+            </div>
+            <!-- Basic Layout -->
+            <div class="col-xxl">
+                <div class="card mb-4">
+                    <!-- Cargando -->
+                    <div v-if="cargando" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Cargando formulario...</p>
+                    </div>
+                    <div v-else="cargando" class="card-body">
+                        <form @submit.prevent="actualizarUsuario">
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Nombre</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.nombreUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese nombre del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Apellido</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.apellidoUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese apellido del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Tipo Identidad</label>
+                                <div class="col-sm-10">
+                                    <select v-model="usuario.tipoIdentidad.id" class="form-select" required>
+                                        <option :value="null" disabled selected>Seleccione un tipo de identidad</option>
+                                        <option value="1">N/A</option>
+                                        <option value="2">DNI</option>
+                                        <option value="3">CARNET EXT.</option>
+                                        <option value="6">PASAPORTE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Num. de identidad</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.identidadUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese el numero de identidad del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Número celular</label>
+                                <div class="col-sm-10">
+                                    <input v-model="usuario.celularUsuario" type="text" class="form-control"
+                                        placeholder="Ingrese el numero de celular del usuario" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Rol usuario</label>
+                                <div class="col-sm-10">
+                                    <div class="row">
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="1"
+                                                    v-model="selectedRols" id="rol-1">
+                                                <label class="form-check-label" for="rol-1">ADMINISTRADOR DE
+                                                    SISTEMA</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="2"
+                                                    v-model="selectedRols" id="rol-2">
+                                                <label class="form-check-label" for="rol-2">GERENCIA GENERAL</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="3"
+                                                    v-model="selectedRols" id="rol-3">
+                                                <label class="form-check-label" for="rol-3">COORDINAR
+                                                    ADMINISTRATIVO</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="4"
+                                                    v-model="selectedRols" id="rol-4">
+                                                <label class="form-check-label" for="rol-4">JEFE DE PROYECTOS</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="5"
+                                                    v-model="selectedRols" id="rol-5">
+                                                <label class="form-check-label" for="rol-5">ASISTENTE
+                                                    ADMINISTRATIVO</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="6"
+                                                    v-model="selectedRols" id="rol-6">
+                                                <label class="form-check-label" for="rol-6">ASISTENTE PROYECTO.</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="7"
+                                                    v-model="selectedRols" id="rol-7">
+                                                <label class="form-check-label" for="rol-7">ADMINISTRADOR DE
+                                                    OBRA</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="8"
+                                                    v-model="selectedRols" id="rol-8">
+                                                <label class="form-check-label" for="rol-8">ALMACENERO</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="9"
+                                                    v-model="selectedRols" id="rol-9">
+                                                <label class="form-check-label" for="rol-9">REGISTRADOR</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" :value="10"
+                                                    v-model="selectedRols" id="rol-10">
+                                                <label class="form-check-label" for="rol-10">DIGITADOR</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Estado</label>
+                                <div class="col-sm-10">
+                                    <select v-model="usuario.estado" class="form-select" required>
+                                        <option :value="1">Activo</option>
+                                        <option :value="2">Suspendido</option>
+                                        <option :value="3">Eliminado</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-end">
+                                <div class="col-sm-10">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Edit -->
+
+        <!-- Pass -->
+        <div v-if="vista === 'editpass'" class="container-xxl flex-grow-1 container-p-y">
+            <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Modificar /</span> Contraseña
+                </h4>
+                <!--<a th:href="@{/administrator/user}">-->
+                <a @click="cargarVista('list')">
+                    <button type="button" class="btn btn-primary">Regresar</button>
+                </a>
+            </div>
+            <!-- Basic Layout -->
+            <div class="col-xxl">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form @submit.prevent="cambiarPassword">
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Contraseña actual</label>
+                                <div class="col-sm-10">
+                                    <input v-model="currentpassword" type="text" class="form-control"
+                                        placeholder="Ingrese contraseña actual" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Nueva contraseña</label>
+                                <div class="col-sm-10">
+                                    <input v-model="newpassword" type="text" class="form-control"
+                                        placeholder="Ingrese nueva contraseña" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Reconfirme nueva contraseña</label>
+                                <div class="col-sm-10">
+                                    <input v-model="confirmpassword" type="text" class="form-control"
+                                        placeholder="Vuelva a escribir la nueva contraseña" required />
+                                </div>
+                            </div>
+                            <div class="row justify-content-end">
+                                <div class="col-sm-10">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Pass -->
+
+    </div>
+    <!-- / Content -->
+
+    <!-- vue.js -->
+    <script layout:fragment="script">
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // VARIABLES SESION
+                    idusuario: '',
+                    nomusuario: '',
+                    rolusuario: '',
+                    nomrol: '',
+                    // VARIABLES GENERALES
+                    vista: '',
+                    modalTitulo: '',
+                    modalMensaje: '',
+                    modalTipo: '',
+                    cargando: false,
+                    error: null,
+                    // VARIABLES USUARIOS
+                    usuarios: [],
+                    usuario: {
+                        id: null,
+                        tipoIdentidad: { id: null },
+                        nombreUsuario: '',
+                        apellidoUsuario: '',
+                        identidadUsuario: '',
+                        passwordUsuario: '',
+                        celularUsuario: '',
+                        roles: [],
+                        estado: 1
+                    },
+                    usuarioId: null,
+                    currentpassword: '',
+                    usuarioId: null,
+                    currentpassword: '',
+                    newpassword: '',
+                    confirmpassword: '',
+                    selectedRols: [], // Array de IDs seleccionados
+                }
+            },
+            methods: {
+                // METODOS SESION
+                cargarSesion: function () {
+                    axios.get('/api/session/usuario')
+                        .then(response => {
+                            const user = response.data;
+                            if (!user || !user.idusuario) {
+                                alert("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+                                window.location.href = "/";
+                            } else {
+                                this.idusuario = user.idusuario;
+                                this.nomusuario = user.nomusuario;
+                                this.rolusuario = user.rolusuario;
+                                this.nomrol = user.nomrol;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error al verificar sesión:", error);
+                            alert("Error al verificar sesión. Por favor, inicia sesión nuevamente.");
+                            window.location.href = "/";
+                        });
+                },
+                cerrarSesion: function () {
+                    this.mostrarModal('modalLogout');
+                },
+                salirSesion: function () {
+                    axios.post('/api/session/logout')
+                        .then(() => {
+                            localStorage.clear();
+                            this.idusuario = '';
+                            this.nomusuario = '';
+                            this.rolusuario = '';
+                            this.nomrol = '';
+                            this.ocultarModal('modalLogout');
+                            setTimeout(() => {
+                                window.location.href = "/";
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al cerrar sesión:", error);
+                            this.modalGeneral("Error", "No se pudo cerrar la sesión correctamente.", "text-danger");
+                        });
+                },
+                // METODOS GENERALES
+                modalGeneral(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalGeneral');
+                },
+                mostrarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(elemento);
+                        modal.show();
+                    } else {
+                        console.error("No se encontró el modal con ID:", idModal);
+                    }
+                },
+                ocultarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getInstance(elemento);
+                        if (modal) modal.hide();
+                    }
+                },
+                cargarVista: function (view) {
+                    switch (view) {
+                        case 'list':
+                            this.vista = 'list';
+                            this.cargarUsuarios();
+                            break;
+                        case 'create':
+                            this.vista = 'create';
+                            this.limpiarUsuario();
+                            break;
+                        case 'edit':
+                            this.vista = 'edit';
+                            this.cargarUsuario(this.usuarioid);
+                            break;
+                        case 'editpass':
+                            this.vista = 'editpass';
+                            break;
+                    }
+                },
+                getEstadoInfo: function (codigo) {
+                    switch (codigo) {
+                        case 1: return { texto: "Activo", clase: "bg-label-success" };
+                        case 2: return { texto: "Suspendido", clase: "bg-label-warning" };
+                        case 3: return { texto: "Eliminado", clase: "bg-label-danger" };
+                        default: return { texto: "Desconocido", clase: "bg-label-secondary" };
+                    }
+                },
+                // METODOS LISTADO
+                cargarUsuarios: function () {
+                    this.cargando = true;
+                    axios.get('/api/usuario')
+                        .then(response => {
+                            // Map 'id' to 'idusuario' if needed, generally Spring REST returns field names matching the bean properties.
+                            // The bean has 'id'. The frontend usually expects what the bean sends.
+                            this.usuarios = response.data;
+                            this.cargando = false;
+                        })
+                },
+                // METODOS CREAR
+                crearUsuario: function () {
+                    //this.usuario.tipoIdentidad = { id: this.usuario.tipoIdentidadId };
+                    this.usuario.roles = this.selectedRols.map(id => ({ id: id }));
+                    axios.post('/api/usuario', this.usuario)
+                        .then(response => {
+                            this.cargarUsuarios();
+                            this.cargarVista('list');
+                            this.modalGeneral("Éxito", "Usuario creado correctamente", "text-success");
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            this.modalGeneral("Error", "No se pudo crear el usuario", "text-danger");
+                        });
+                },
+                // METODOS EDITAR
+                seleccionarUsuario: function (id) {
+                    this.usuarioid = id;
+                    this.cargarVista('edit');
+                },
+                cargarUsuario: function (id) {
+                    this.cargando = true;
+                    axios.get(`/api/usuario/${id}`)
+                        .then(response => {
+                            this.usuario = response.data;
+                            // Map roles to selectedRols IDs for checkboxes
+                            if (this.usuario.roles) {
+                                this.selectedRols = this.usuario.roles.map(rol => rol.id);
+                            } else {
+                                this.selectedRols = [];
+                            }
+                        })
+                        .catch(error => {
+                            this.modalGeneral('Error', 'Se registró un error al momento de cargar los datos', 'text-danger');
+                            console.error('Error al cargar usuario:', error);
+                        })
+                        .finally(() => {
+                            this.cargando = false;
+                        });
+                },
+                actualizarUsuario: function () {
+                    this.usuario.roles = this.selectedRols.map(id => ({ id: id }));
+                    console.log(this.usuario);
+                    axios.put('/api/usuario/' + this.usuario.id, this.usuario)
+                        .then(response => {
+                            this.cargarUsuarios();
+                            this.cargarVista('list');
+                            this.modalGeneral("Éxito", "Usuario actualizado correctamente", "text-success");
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            this.modalGeneral("Error", "No se pudo actualizar el usuario", "text-danger");
+                        });
+                },
+                // METODOS CAMBIAR CONTRASEÑA
+                modificarpassUsuario: function (id) {
+                    this.usuarioid = id;
+                    this.cargarVista('editpass');
+                },
+                cambiarPassword: function () {
+
+                    if (!this.currentpassword || !this.newpassword || !this.confirmpassword) {
+                        this.modalGeneral('Advertencia', 'Uno o mas campos necesarios están en blanco.', 'text-warning');
+                        return;
+                    } else if (this.newpassword !== this.confirmpassword) {
+                        this.modalGeneral("Error", "Las contraseñas no coinciden", "text-danger");
+                        return;
+                    }
+
+                    const data = {
+                        currentPassword: this.currentpassword,
+                        newPassword: this.newpassword
+                    };
+                    axios.put('/api/usuario/password/' + this.usuarioid, data)
+                        .then(response => {
+                            this.cargarUsuarios();
+                            this.cargarVista('list');
+                            this.modalGeneral("Éxito", "Contraseña actualizada correctamente", "text-success");
+                            // Clean fields
+                            this.currentpassword = '';
+                            this.newpassword = '';
+                            this.confirmpassword = '';
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            if (error.response && error.response.status === 401) {
+                                this.modalGeneral("Error", "La contraseña actual es incorrecta", "text-danger");
+                            } else {
+                                this.modalGeneral("Error", "No se pudo actualizar la contraseña", "text-danger");
+                            }
+                        });
+                },
+                // METODOS ELIMINAR
+                prepararEliminar: function (id) {
+                    this.usuarioId = id;
+                    this.mostrarModal('modalDelete');
+                },
+                eliminarUsuario: function () {
+                    if (this.usuarioId) {
+                        axios.delete('/api/usuario/' + this.usuarioId)
+                            .then(response => {
+                                this.cargarUsuarios();
+                                this.ocultarModal('modalDelete');
+                                this.usuarioId = null;
+                                this.modalGeneral("Éxito", "Usuario eliminado correctamente", "text-success");
+                            })
+                            .catch(error => {
+                                console.error(error);
+                                this.modalGeneral("Error", "No se pudo eliminar el usuario", "text-danger");
+                            });
+                    }
+                },
+                limpiarUsuario: function () {
+                    this.usuario = {
+                        id: null,
+                        tipoIdentidad: { id: null },
+                        nombreUsuario: '',
+                        apellidoUsuario: '',
+                        identidadUsuario: '',
+                        passwordUsuario: '',
+                        celularUsuario: '',
+                        estado: 1,
+                        roles: []
+                    };
+                    this.selectedRols = [];
+                },
+            },
+            mounted() {
+                this.cargarSesion();
+                this.cargarVista('list');
+            }
+        }).mount('#app');
+    </script>
+    <!-- / vue.js -->
+
+</body>
+
+</html>

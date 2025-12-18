@@ -1,0 +1,47 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Modal de eliminación -->
+<th:block th:fragment="layout-head(title)">
+
+    <head>
+        <title th:text="${title}"></title>
+        <link rel="icon" type="image/x-icon" th:href="@{/img/favicon/favicon.ico}" />
+        <meta name="description" content="Sistema web para gestión de edificios, presupuestos y pagos en línea.">
+        <meta name="viewport"
+            content="width=device-width, initial-scale=0.7, user-scalable=no, minimum-scale=0.7, maximum-scale=1.0" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="_csrf" th:content="${_csrf.token}" />
+        <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+        <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/css/home.css}">
+        <link rel="stylesheet" th:href="@{/fonts/basic/boxicons.min.css}">
+        <link rel="stylesheet" th:href="@{/fonts/brands/boxicons-brands.min.css}">
+        <link rel="stylesheet" th:href="@{/fonts/animations.min.css}">
+        <link rel="stylesheet" th:href="@{/fonts/transformations.min.css}">
+
+        <script th:src="@{/js/vue.global.js}"></script>
+        <script th:src="@{/js/axios.min.js}"></script>
+        <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    </head>
+</th:block>
+
+<th:block th:fragment="login-head(title)">
+
+    <head>
+        <title th:text="${title}"></title>
+        <link rel="icon" type="image/x-icon" th:href="@{/img/favicon/favicon.ico}" />
+        <meta name="description" content="Sistema web para gestión de edificios, presupuestos y pagos en línea.">
+        <meta name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="_csrf" th:content="${_csrf.token}" />
+        <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+        <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/css/login.css}">
+        <script th:src="@{/js/vue.global.js}"></script>
+        <script th:src="@{/js/axios.min.js}"></script>
+        <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    </head>
+</th:block>

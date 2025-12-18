@@ -1,0 +1,498 @@
+/* =======================================================
+SIDEBAR ESTILO MANTIS DASHBOARD + DROPDOWN COLLAPSIBLE
+======================================================= */
+
+:root {
+    /* Colores oficiales de Sneat */
+    --bs-primary: #696cff;
+    --bs-primary-rgb: 105, 108, 255;
+    --bs-secondary: #8592a3;
+    --bs-success: #71dd37;
+    --bs-danger: #ff3e1d;
+    --bs-warning: #ffab00;
+    --bs-info: #03c3ec;
+    --bs-body-font-family: 'Public Sans', sans-serif;
+}
+
+/* Fondo gris claro con centrado total */
+body {
+    background-color: #f5f7fa;
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2e3a59;
+    margin: 0;
+}
+
+
+/* Contenedor base del sidebar */
+.sidebar {
+    width: 210px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: all 0.25s ease-in-out;
+}
+
+/* Logo superior */
+.sidebar-logo img {
+    height: 45px;
+}
+
+.sidebar-logo span {
+    line-height: 1.2;
+}
+
+/* =======================================================
+   ENLACES PRINCIPALES
+   ======================================================= */
+.sidebar .nav-link {
+    color: #475569;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar .nav-link i {
+    font-size: 1.2rem;
+    color: #64748b;
+    transition: color 0.2s ease;
+}
+
+/* Hover y estado activo */
+.sidebar .nav-link:hover {
+    background-color: #f1f5f9;
+    color: #0d6efd;
+}
+
+.sidebar .nav-link:hover i {
+    color: #0d6efd;
+}
+
+.sidebar .nav-link.active {
+    background-color: #e8f0fe;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* =======================================================
+   BOTONES COLLAPSIBLES (para submenús)
+   ======================================================= */
+.sidebar .btn.nav-link {
+    background: none;
+    border: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar .btn.nav-link:hover {
+    background-color: #f1f5f9;
+    color: #0d6efd;
+}
+
+.sidebar .btn.nav-link:hover i {
+    color: #0d6efd;
+}
+
+/* Flecha de colapso */
+.sidebar .btn.nav-link .bx-chevron-down {
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+}
+
+.sidebar .btn.nav-link[aria-expanded="true"] .bx-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* =======================================================
+   SUBMENÚS INTERIORES (collapse)
+   ======================================================= */
+.sidebar .collapse .nav-link {
+    font-size: 0.88rem;
+    color: #475569;
+    padding: 0.35rem 1rem 0.35rem 2.2rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.sidebar .collapse .nav-link:hover {
+    background-color: #e2e8f0;
+    color: #0d6efd;
+}
+
+.sidebar .collapse .nav-link.active {
+    background-color: #e8f0fe;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* =======================================================
+   USUARIO (dropdown inferior)
+   ======================================================= */
+.sidebar .dropdown-toggle {
+    font-weight: 600;
+    color: #334155;
+}
+
+.sidebar .dropdown-toggle img {
+    border: 2px solid #e5e7eb;
+    transition: 0.2s;
+}
+
+.sidebar .dropdown-toggle:hover img {
+    border-color: #0d6efd;
+}
+
+/* =======================================================
+   SCROLLBAR ELEGANTE
+   ======================================================= */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+}
+
+/* =======================================================
+   TITULARES Y HR
+   ======================================================= */
+.sidebar hr {
+    border-color: #e5e7eb;
+    margin: 1rem 0;
+}
+
+/* =======================================================
+   RESPONSIVE
+   ======================================================= */
+@media (max-width: 992px) {
+    .sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        z-index: 1050;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+/* Botón visible solo en móvil */
+button[data-bs-toggle="offcanvas"] {
+    border-radius: 8px;
+}
+
+/* Sidebar fijo en escritorio */
+@media (min-width: 768px) {
+    #sidebarMenu.offcanvas {
+        width: 210px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        transform: none;
+        visibility: visible;
+        border-right: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+        /* animación suave */
+    }
+
+    body {
+        margin-left: 210px;
+        /* espacio para contenido */
+    }
+}
+
+/* Estilos para el contenedor principal de la "navbar-card" */
+.bg-navbar-theme {
+    /* Asegura que la tarjeta no tenga un fondo blanco pálido si tu plantilla lo usa */
+    background-color: #ffffff;
+    /* Elimina el borde superior e inferior por defecto si se usa solo border-bottom */
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    /* Asegura que no haya margen */
+    margin-bottom: 0 !important;
+    /* Usa un z-index alto para que esté siempre sobre el contenido (como un navbar) */
+    z-index: 1030;
+    /* Si quieres una ligera sombra inferior (opcional) */
+    /* box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); */
+}
+
+/* Estilos para el encabezado de la tarjeta (donde va el contenido) */
+.bg-navbar-theme .card-header {
+    /* Asegura que el color de fondo sea transparente */
+    background-color: transparent !important;
+    /* Elimina cualquier borde de separación interno del header */
+    border-bottom: none !important;
+    /* Asegura que el padding replique el del navbar original */
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    padding-left: 1.5rem !important;
+    /* Ajusta el padding horizontal si tu navbar lo usa */
+    padding-right: 1.5rem !important;
+    /* Ajusta el padding horizontal si tu navbar lo usa */
+}
+
+/* Estilos para el texto del cliente */
+.bg-navbar-theme .fs-3 {
+    /* Asegura que el texto sea oscuro sobre el fondo blanco */
+    color: #333333 !important;
+    /* El tamaño de fuente debe ser el mismo que usa el navbar si es diferente a fs-3 */
+    line-height: 1.5;
+}
+
+/* Estilos para el texto del usuario */
+.bg-navbar-theme .lh-1 {
+    /* Asegura que el texto sea oscuro sobre el fondo blanco */
+    color: #555555 !important;
+}
+
+/* Definir una clase de z-index alto para el botón */
+.z-index-high {
+    z-index: 1050 !important;
+    /* Valor mayor que el fixed-top (1030) */
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+
+    .modal-dialog {
+        /* Define aquí el ancho que quieras */
+        width: 250px !important;
+        /*height: 450px !important;*/
+
+        /* Esto asegura que se centre si usas un ancho fijo */
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+}
+
+/* =======================================================
+   ESTRUCTURA DE CONTENIDO (LAYOUT)
+   ======================================================= */
+
+/* 1. LAYOUT PAGE: El contenedor principal a la derecha del sidebar */
+.layout-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    /* Asegura que ocupe al menos toda la pantalla */
+}
+
+/* 2. CONTENT WRAPPER: Maneja el área útil (Navbar abajo hasta el fin) */
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    /* Ocupa todo el espacio sobrante verticalmente */
+    width: 100%;
+    /* Asegura ancho total */
+    align-items: stretch;
+    background-color: #f5f7fa;
+    /* El color de fondo gris claro de tu body */
+}
+
+/* 3. ESPACIADO INTELIGENTE (Paddings) */
+/* container-p-y añade espacio arriba y abajo del contenido para que no toque el navbar ni el footer */
+.container-p-y {
+    padding-top: 1.5rem;
+    /* ~24px */
+    padding-bottom: 1.5rem;
+}
+
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+/* 4. FOOTER ESTILO SNEAT */
+.bg-footer-theme {
+    background-color: #f5f7fa !important;
+    /* Mismo color del fondo para que sea sutil */
+    /* O usa #ffffff si quieres que resalte como barra blanca */
+}
+
+.footer {
+    padding: 1rem 0;
+    /* Espaciado interno del footer */
+    /* border-top: 1px solid #e7e7e8;  <-- Descomenta si quieres una línea separadora */
+}
+
+.footer-link {
+    color: #697a8d;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    color: #5f61e6;
+    /* Color primario al pasar mouse */
+}
+
+/* 5. AJUSTE RESPONSIVE */
+/* En móviles, como el sidebar desaparece, quitamos el margen del body */
+@media (max-width: 767.98px) {
+    .layout-page {
+        padding-left: 0 !important;
+    }
+
+    /* Si tenías margin-left en el body, asegúrate de quitarlo aquí */
+    body {
+        margin-left: 0 !important;
+    }
+}
+
+/* =======================================================
+   ESCALADO GLOBAL
+   ======================================================= */
+
+/* Cuando la pantalla sea menor a 1400px (Laptops estándar) */
+@media (max-width: 1399.98px) {
+    html {
+        /* Bajamos el tamaño base de 16px a 14px o 13px */
+        /* Esto hará que botones, textos, modales y paddings se reduzcan un ~15% */
+        font-size: 11.5px;
+    }
+}
+
+/* Opcional: Para pantallas muy pequeñas o tabletas */
+@media (max-width: 991.98px) {
+    html {
+        font-size: 10.5px;
+    }
+}
+
+/* =======================================================
+   ESTILOS MODAL
+   ======================================================= */
+
+.modal-dialog {
+    max-width: 450px !important;
+    /*min-height: 450px !important;*/
+}
+
+.modal-content {
+    border: none;
+    /* Quita el borde gris por defecto */
+    border-radius: 0.5rem;
+    /* Esquinas redondeadas (8px) */
+    box-shadow: 0 0.25rem 1rem rgba(161, 172, 184, 0.45);
+    /* Sombra suave */
+    background-color: #fff;
+    min-height: 200px;
+}
+
+/* 2. El encabezado (Título y botón X) */
+.modal-header {
+    border-bottom: none;
+    /* Quita la línea divisoria de abajo */
+    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+    /* Espaciado amplio */
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    /* Título un poco más grueso */
+    font-size: 1.125rem;
+    /* Tamaño de letra ideal (18px) */
+    color: #566a7f;
+    /* Color gris oscuro elegante */
+}
+
+.modal-header .btn-close {
+    margin-top: -0.5rem;
+    /* Ajuste fino para alinear la X */
+}
+
+/* 3. El cuerpo (Donde va el texto o formulario) */
+.modal-body {
+    padding: 1rem 1.5rem;
+    /* Espaciado interno cómodo */
+    color: #697a8d;
+    /* Texto gris medio */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+/* 4. El pie (Donde van los botones) */
+.modal-footer {
+    border-top: none;
+    /* Quita la línea divisoria de arriba */
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+    /* justify-content: flex-end; <--- Por defecto bootstrap lo pone a la derecha, está bien */
+}
+
+/* Atacamos específicamente a los botones que están dentro del footer del modal */
+.modal-footer .btn {
+    width: auto;
+    /* Ya no ocupa el 100%, solo lo que necesita el texto */
+    min-width: 120px;
+    /* (Opcional) Un ancho mínimo para que no se vea muy chico */
+    margin: 0 5px;
+    /* Separación entre botones si hay dos */
+}
+
+/* =======================================================
+   BOTONES PERSONALIZADOS
+   ======================================================= */
+
+/* Botón Primario (El violeta de tu imagen) */
+/* .btn-primary {
+    width: 100%;
+    background-color: #696cff;
+    /* Color oficial Sneat */
+    /* border-color: #696cff;
+    box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
+    /* Sombra brillante */
+    /* font-weight: 500;
+}*/
+
+/* .btn-primary:hover {
+    background-color: #5f61e6;
+    /* Un poco más oscuro al pasar el mouse */
+    /* border-color: #5f61e6;
+    transform: translateY(-1px);
+    /* Efecto de elevación */
+/* }*/
+
+/* Botón Secundario (El botón "Close" o "Cancelar") */
+/* En tu imagen se ve como texto gris simple, sin borde */
+/* .btn-outline-secondary {
+    color: #8592a3;
+    border-color: transparent;
+    /* Sin borde */
+    /* background: transparent;
+    font-weight: 500;
+}*/
+
+/* .btn-outline-secondary:hover {
+    color: #697a8d;
+    background-color: rgba(67, 89, 113, 0.04);
+    /* Fondo gris muy suave al hover */
+    /*border-color: transparent;
+/* }*/

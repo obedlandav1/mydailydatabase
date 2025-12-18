@@ -1,0 +1,148 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="general">
+  <div class="modal fade" id="modalGeneral" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalGeneralLabel" v-text="modalTitulo">Titulo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <p :class="modalTipo" v-text="modalMensaje" class="mb-0">Mensaje aquí</p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+            Aceptar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="error">
+  <div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalErrorLabel" v-text="modalTitulo">Titulo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <p :class="modalTipo" v-text="modalMensaje" class="mb-0">Mensaje aquí</p>
+        </div>
+
+        <div class="modal-footer">
+          <a href="/login" class="btn btn-primary" data-bs-dismiss="modal">
+            Aceptar
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<th:block th:fragment="roles">
+  <div class="modal fade" id="modalRols" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+    data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ modalTitulo }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-left mb-3">
+            <i class="bx bx-user bx-lg text-primary"></i>
+            <p :class="modalTipo" class="mt-2">{{ modalMensaje }}</p>
+          </div>
+
+          <div v-if="roles.length > 0" class="px-2">
+            <div v-for="r in roles" :key="r.id" class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="rol" :id="'rol' + r.id" :value="r.id"
+                v-model="rolSeleccionado">
+              <label class="form-check-label" :for="'rol' + r.id">
+                {{ r.nombreLargo }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" :disabled="!rolSeleccionado" @click="elegirRol">
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<!-- Modal de cierre de sesión -->
+<th:block th:fragment="logout">
+  <div class="col-lg-4 col-md-6">
+    <div class="mt-3">
+      <div class="modal fade" id="modalLogout" aria-labelledby="modalLogoutLabel" tabindex="-1" style="display: none"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalLogoutLabel">Cerrar sesión</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+              <i class="bx bx-log-out-circle bx-lg text-danger mb-3"></i>
+              <p class="fs-6">¿Deseas cerrar tu sesión actual? <br>
+                Se cerrará tu acceso y deberás iniciar sesión nuevamente.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                Cancelar
+              </button>
+              <button type="button" @click="salirSesion" class="btn btn-danger">
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<!-- Modal de eliminación -->
+<th:block th:fragment="delete">
+  <div class="col-lg-4 col-md-6">
+    <div class="mt-3">
+      <div class="modal fade" id="modalDelete" aria-labelledby="modalDeleteLabel" tabindex="-1" style="display: none"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalDeleteLabel">Eliminar Registro</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">¿Desea eliminar el registro? Esta acción no se puede
+              deshacer</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" @click="eliminarUsuario" class="btn btn-primary">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+</html>

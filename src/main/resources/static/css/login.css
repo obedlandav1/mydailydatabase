@@ -1,0 +1,284 @@
+/* ===============================
+   LOGIN STYLE - INSPIRED BY MANTIS
+   =============================== */
+
+:root {
+    /* Colores oficiales de Sneat */
+    --bs-primary: #696cff;
+    --bs-primary-rgb: 105, 108, 255;
+    --bs-secondary: #8592a3;
+    --bs-success: #71dd37;
+    --bs-danger: #ff3e1d;
+    --bs-warning: #ffab00;
+    --bs-info: #03c3ec;
+    --bs-body-font-family: 'Public Sans', sans-serif;
+}
+
+/* Fondo gris claro con centrado total */
+body {
+    background-color: #f5f7fa;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2e3a59;
+    margin: 0;
+}
+
+/* Contenedor principal tipo card rectangular */
+.login-card {
+    background-color: #ffffff;
+    border: 1px solid #e4e6eb;
+    border-radius: 0px;
+    /* Sin bordes redondeados */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+}
+
+/* Logo superior */
+.login-card img {
+    margin-bottom: 1.5rem;
+}
+
+/* Etiquetas del formulario */
+.form-label {
+    display: block;
+    text-align: left;
+    font-weight: 900;
+    /* 💪 máximo grosor */
+    color: #111827;
+    /* casi negro para más contraste */
+    margin-bottom: 0.4rem;
+    font-size: 0.98rem;
+    letter-spacing: 0.25px;
+}
+
+/* Título */
+.login-title {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #212b36;
+    font-size: 1.25rem;
+}
+
+/* Campos de formulario */
+.form-control {
+    border-radius: 0;
+    /* Bordes cuadrados */
+    border: 1px solid #cfd4da;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    box-shadow: none;
+    transition: border-color 0.2s ease-in-out;
+}
+
+/* Hover/focus input */
+.form-control:focus {
+    border-color: #3b82f6;
+    /* azul suave */
+    box-shadow: none;
+}
+
+/* Etiquetas alineadas */
+label.form-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Botón principal
+.btn-primary {
+    width: 100%;
+    border-radius: 0;
+    --Cuadrado--
+    padding: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    background-color: #3b82f6;
+    border: none;
+    transition: background-color 0.2s ease-in-out;
+}*/
+
+/* Hover botón
+.btn-primary:hover {
+    background-color: #2563eb;
+}*/
+
+/* Texto auxiliar o error */
+.invalid-feedback {
+    font-size: 0.8rem;
+    color: #dc3545;
+    text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .login-card {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .modal-dialog {
+        /* Define aquí el ancho que quieras */
+        width: 250px !important;
+        /*height: 450px !important;*/
+
+        /* Esto asegura que se centre si usas un ancho fijo */
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+}
+
+/* --- ESCALADO GLOBAL PARA LAPTOPS PEQUEÑAS --- */
+
+/* Cuando la pantalla sea menor a 1400px (Laptops estándar) */
+@media (max-width: 1399.98px) {
+    html {
+        /* Bajamos el tamaño base de 16px a 14px o 13px */
+        /* Esto hará que botones, textos, modales y paddings se reduzcan un ~15% */
+        font-size: 11.5px;
+    }
+}
+
+/* Opcional: Para pantallas muy pequeñas o tabletas */
+@media (max-width: 991.98px) {
+    html {
+        font-size: 10.5px;
+    }
+}
+
+/* Estilos modal */
+.modal-dialog {
+    max-width: 450px !important;
+    /*min-height: 450px !important;*/
+}
+
+.modal-content {
+    border: none;
+    /* Quita el borde gris por defecto */
+    border-radius: 0.5rem;
+    /* Esquinas redondeadas (8px) */
+    box-shadow: 0 0.25rem 1rem rgba(161, 172, 184, 0.45);
+    /* Sombra suave */
+    background-color: #fff;
+    min-height: 200px;
+}
+
+/* 2. El encabezado (Título y botón X) */
+.modal-header {
+    border-bottom: none;
+    /* Quita la línea divisoria de abajo */
+    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+    /* Espaciado amplio */
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    /* Título un poco más grueso */
+    font-size: 1.125rem;
+    /* Tamaño de letra ideal (18px) */
+    color: #566a7f;
+    /* Color gris oscuro elegante */
+}
+
+.modal-header .btn-close {
+    margin-top: -0.5rem;
+    /* Ajuste fino para alinear la X */
+}
+
+/* 3. El cuerpo (Donde va el texto o formulario) */
+.modal-body {
+    padding: 1rem 1.5rem;
+    /* Espaciado interno cómodo */
+    color: #697a8d;
+    /* Texto gris medio */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+/* 4. El pie (Donde van los botones) */
+.modal-footer {
+    border-top: none;
+    /* Quita la línea divisoria de arriba */
+    padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+    /* justify-content: flex-end; <--- Por defecto bootstrap lo pone a la derecha, está bien */
+}
+
+/* Atacamos específicamente a los botones que están dentro del footer del modal */
+.modal-footer .btn {
+    width: auto;       /* Ya no ocupa el 100%, solo lo que necesita el texto */
+    min-width: 120px;  /* (Opcional) Un ancho mínimo para que no se vea muy chico */
+    margin: 0 5px;     /* Separación entre botones si hay dos */
+}
+
+/* =======================================================
+   BOTONES PERSONALIZADOS
+   ======================================================= */
+
+/* Botón Primario (El violeta de tu imagen) */
+/* .btn-primary {
+    width: 100%;
+    background-color: #696cff;
+    /* Color oficial Sneat */
+    /* border-color: #696cff;
+    box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
+    /* Sombra brillante */
+    /* font-weight: 500;
+}*/
+
+/* .btn-primary:hover {
+    background-color: #5f61e6;
+    /* Un poco más oscuro al pasar el mouse */
+    /* border-color: #5f61e6;
+    transform: translateY(-1px);
+    /* Efecto de elevación */
+/* }*/
+
+/* Botón Secundario (El botón "Close" o "Cancelar") */
+/* En tu imagen se ve como texto gris simple, sin borde */
+/* .btn-outline-secondary {
+    color: #8592a3;
+    border-color: transparent;
+    /* Sin borde */
+    /* background: transparent;
+    font-weight: 500;
+}*/
+
+/* .btn-outline-secondary:hover {
+    color: #697a8d;
+    background-color: rgba(67, 89, 113, 0.04);
+    /* Fondo gris muy suave al hover */
+    /*border-color: transparent;
+/* }*/
+/* --- TAMAÑO PERSONALIZADO DE MODALES --- */
+
+/* Aplicamos esto solo en pantallas mayores a 576px (Tablets y PC) */
+/* En celulares, dejar que ocupe todo el ancho automáticamente */
+/*@media (min-width: 576px) {
+    .modal-dialog */
+/* Cambia 500px por el tamaño que tú quieras */
+/* Sneat suele usar entre 400px y 550px para modales estándar */
+/*max-width: 500px !important;*/
+
+/* Opcional: Centrarlo horizontalmente */
+/*margin-left: auto;
+        margin-right: auto;
+    }
+}*/
+
+/* Si quieres un tamaño diferente ESPECÍFICO para modales pequeños (como el de eliminar) */
+/* Puedes agregar la clase modal-sm en tu HTML y usar esto: */
+/*@media (min-width: 576px) {
+    .modal-sm .modal-dialog {
+        max-width: 380px !important;
+    }
+}*/

@@ -1,0 +1,214 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- ADMINISTRADOR DE SISTEMA -->
+<aside class="sidebar offcanvas offcanvas-start d-flex flex-column flex-shrink-0 p-3 bg-white shadow-sm" tabindex="-1"
+    id="sidebarMenu" aria-labelledby="sidebarLabel" th:fragment="administrator">
+    <!-- ENCABEZADO -->
+    <!--<div class="sidebar d-flex flex-column flex-shrink-0 p-3">-->
+    <div class="offcanvas-header border-bottom d-flex justify-content-between align-items-center p-2">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-decoration-none sidebar-logo">
+            <img th:src="@{/img/img-logo-180.png}" alt="MyDailyDB" class="sidebar-icon me-2">
+            <!--<span class="fs-5 fw-bold text-dark">MyDaily<br><span class="text-muted">Database</span></span>-->
+        </a>
+        <button type="button" class="btn d-md-none" data-bs-dismiss="offcanvas" aria-label="Cerrar">
+            <i class="bx bx-chevron-left fs-4"></i>
+        </button>
+    </div>
+    <!-- CUERPO -->
+    <div class="offcanvas-body overflow-auto p-1">
+        <ul class="nav nav-pills flex-column mb-auto">
+            <!-- ADMINISTRACION -->
+            <li class="nav-item">
+                <a th:href="@{/administrator/users}"
+                    class="nav-link link-dark d-flex align-items-center w-100 text-start">
+                    <i class="bx bx-user me-2"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a th:href="@{/administrator/companies}"
+                    class="nav-link link-dark d-flex align-items-center w-100 text-start">
+                    <i class="bx bx-buildings me-2"></i>
+                    <span>Empresas</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- PERFIL USUARIO -->
+    <hr>
+    <div th:replace="~{fragments/user :: user-session}"></div>
+
+</aside>
+
+<!-- GENERAL -->
+<aside class="sidebar offcanvas offcanvas-start d-flex flex-column flex-shrink-0 p-3 bg-white shadow-sm" tabindex="-1"
+    id="sidebarMenu" aria-labelledby="sidebarLabel" th:fragment="general">
+    <!-- ENCABEZADO -->
+    <!--<div class="sidebar d-flex flex-column flex-shrink-0 p-3">-->
+    <div class="offcanvas-header border-bottom d-flex justify-content-between align-items-center p-2">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 text-decoration-none sidebar-logo">
+            <img th:src="@{/img/img-logo-180.png}" alt="MyDailyDB" class="sidebar-icon me-2">
+            <!--<span class="fs-5 fw-bold text-dark">MyDaily<br><span class="text-muted">Database</span></span>-->
+        </a>
+        <button type="button" class="btn d-md-none" data-bs-dismiss="offcanvas" aria-label="Cerrar">
+            <i class="bx bx-chevron-left fs-4"></i>
+        </button>
+    </div>
+    <!-- CUERPO -->
+    <div class="offcanvas-body overflow-auto p-1">
+        <ul class="nav nav-pills flex-column mb-auto">
+            <!-- PROYECTOS -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#project" aria-expanded="false">
+                    <span><i class="bx bx-business me-2"></i>Proyectos</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="project">
+                    <ul class=" nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Proyectos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Presupuesto base</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Contratos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Ordenes servicio</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Ordenes compra</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- TESORERIA -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#treasury" aria-expanded="false">
+                    <span><i class="bx bx-coins me-2"></i>Tesorería</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="treasury">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Cuentas</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Ingresos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Egresos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Rendiciones</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Est. de cuentas</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- CONTABILIDAD -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#accounting" aria-expanded="false">
+                    <span><i class="bx bx-wallet-cards me-2"></i>Contabilidad</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="accounting">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Flujo de caja</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Ventas</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Compras</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">R. Honorarios</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Planilla</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- CUENTAS POR COBRAR -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#billing" aria-expanded="false">
+                    <span><i class="bx bx-cart-plus me-2"></i>Ventas</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="billing">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Cotizaciones</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Potenciales proyectos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Contratos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Cuentas por cobrar</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- CUENTAS POR PAGAR -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#paying" aria-expanded="false">
+                    <span><i class="bx bx-cart-minus me-2"></i>Compras</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="paying">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Cotizaciones</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Requerimientos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Orden de compra</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Orden de servicio</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Inventario físico</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Cuentas por pagar</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- INVENTARIO -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#warehouse" aria-expanded="false">
+                    <span><i class="bx bx-store-alt-2 me-2"></i>Inventario</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="warehouse">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Almacenes</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Entradas y salidas</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Inventario valorizado</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Inventario físico</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Pedidos</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- RECURSOS HUMANOS -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#personal" aria-expanded="false">
+                    <span><i class="bx bx-man me-2"></i>Recursos humanos</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="personal">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Registro de personal</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Planilla</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Asistencia</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Anticipos y pagos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Beneficios sociales</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- ADMINISTRACION -->
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#administration" aria-expanded="false">
+                    <span><i class="bx bx-apps-alt me-2"></i>Administración</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="administration">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Empresas</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Usuarios y roles</a></li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <!-- PERFIL USUARIO -->
+    <hr>
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="usuario" width="36" height="36" class="rounded-circle me-2">
+            <label>Obed Landa</label>
+        </a>
+        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser">
+            <li><a class="dropdown-item" href="#">Perfil</a></li>
+            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li>
+                <div class="dropdown-divider"></div>
+            </li>
+            <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
+        </ul>
+    </div>
+</aside>
+
+</html>
