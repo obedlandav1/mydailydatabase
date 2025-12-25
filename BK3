@@ -1,4 +1,4 @@
-package com.conetdev.mydailydatabase.api;
+package com.conetdev.mydailydatabase.api.v1;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,57 +22,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-//import com.conetdev.mydailydatabase.models.RazonSocial;
-import com.conetdev.mydailydatabase.models.Usuario;
+import com.conetdev.mydailydatabase.model.Usuario;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
+import com.conetdev.mydailydatabase.service.UsuarioService;
 import com.conetdev.mydailydatabase.utils.PasswordUtils;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class UserController {
 
     @Autowired
     UsuarioRepository userRepository;
 
     @Autowired
+    UsuarioService usuarioService;
+
+    @Autowired
     PasswordUtils passutil;
 
     private String class_name = UserController.class.getName();
-
-    @PostMapping("/usuario/validar")
-    ResponseEntity<Map<String, Object>> login(
-            // public ResponseEntity<Usuario> login(
-            @RequestParam("user") String user,
-            @RequestParam("pass") String pass) {
-        try {
-            Optional<Usuario> entidad = userRepository.findByIdentidadUsuario(user);
-            if (entidad.isPresent()) {
-                Usuario u = entidad.get();
-                if (passutil.matches(pass, u.getPasswordUsuario())) {
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("status", "OK");
-                    response.put("idusuario", u.getId());
-                    response.put("nomusuario", u.getNombreUsuario() + " " + u.getApellidoUsuario());
-                    response.put("roles", u.getRoles());
-
-                    // response.put("idrazon", u.getCliente().getIdcliente());
-                    // response.put("nomrazon", u.getCliente().getRazon_cliente());
-                    Logger.getLogger(class_name).log(Level.INFO, "HttpStatus: OK, authentication successful");
-                    return new ResponseEntity<>(response, HttpStatus.OK);
-                } else {
-                    Logger.getLogger(class_name).log(Level.SEVERE, "Error on query: {0}", "HttpStatus: UNAUTHORIZED");
-                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-                }
-            } else {
-                Logger.getLogger(class_name).log(Level.SEVERE, "Empty query: {0}", "HttpStatus: NOT_FOUND");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            Logger.getLogger(class_name).log(Level.SEVERE, "Error on validate(): {0}", e.toString());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @GetMapping("/usuario")
     public ResponseEntity<List<Usuario>> getAll(@RequestParam(required = false) Long id) {
@@ -80,11 +49,16 @@ public class UserController {
             List<Usuario> lista = new ArrayList<Usuario>();
             userRepository.findAll().forEach(lista::add);
             if (lista.isEmpty()) {
+                Logger.getLogger(class_name).log(Level.INFO,
+                        "HttpStatus: OK, List of users is empty");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
+
+            Logger.getLogger(class_name).log(Level.INFO, "HtpStatus: OK, List of users returned");
             return new ResponseEntity<>(lista, HttpStatus.OK);
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, "Error on getAll(): {0}", e.toString());
+            Logger.getLogger(class_name).log(Level.SEVERE,
+                    "HttpStatus: INTERNAL_SERVER_ERROR, Error on server processing", e.toString());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -99,7 +73,7 @@ public class UserController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, "Error on getById()", e.toString());
+            Logger.getLogger(class_name).log(Level.SEVERE, "Error on getById()", e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -120,7 +94,7 @@ public class UserController {
             Usuario _entidad = userRepository.save(user);
             return new ResponseEntity<>(_entidad, HttpStatus.CREATED);
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, "Error on create()", e.toString());
+            Logger.getLogger(class_name).log(Level.SEVERE, "Error on create()", e.toString());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -144,7 +118,7 @@ public class UserController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, "Error on update(): ", e.toString());
+            Logger.getLogger(class_name).log(Level.SEVERE, "Error on update(): ", e.toString());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -155,7 +129,7 @@ public class UserController {
             userRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, "Error on delete(): ", e.toString());
+            Logger.getLogger(class_name).log(Level.SEVERE, "Error on delete(): ", e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -180,10 +154,135 @@ public class UserController {
             userRepository.save(user);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, "Error on updatePassword(): ",
+            Logger.getLogger(class_name).log(Level.SEVERE, "Error on updatePassword(): ",
                     e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 }
+
+
+package com.conetdev.mydailydatabase.mapper;
+
+import com.conetdev.mydailydatabase.dto.UsuarioDto;
+import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.response.UsuarioResponse;
+import com.conetdev.mydailydatabase.model.TipoRol;
+import com.conetdev.mydailydatabase.model.TipoIdentidad;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
+
+@Mapper(componentModel = "spring")
+public interface UsuarioMapper {
+
+    UsuarioMapper INSTANCE = Mappers.getMapper(UsuarioMapper.class);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "nombreUsuario", target = "nombre")
+    @Mapping(source = "apellidoUsuario", target = "apellido")
+    @Mapping(source = "identidadUsuario", target = "identidad")
+    @Mapping(source = "celularUsuario", target = "celular")
+    @Mapping(source = "estado", target = "estado")
+    // @Mapping(source = "estado", target = "estado", qualifiedByName = "mapEstado")
+
+    UsuarioResponse toUsuarioResponse(Usuario usuario);
+
+    // Mapeo automático para los Sub-DTOs (MapStruct detectará los nombres iguales
+    // id/nombreLargo)
+    UsuarioDto.RoleDto toUsuarioResponseRole(TipoRol rol);
+
+    UsuarioDto.TipoIdentidadDto toUsuarioResponseTipoIdentidad(TipoIdentidad tipo);
+
+    // Mapping from DTO to Entity
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "nombre", target = "nombreUsuario")
+    @Mapping(source = "apellido", target = "apellidoUsuario")
+    @Mapping(source = "identidad", target = "identidadUsuario")
+    @Mapping(source = "celular", target = "celularUsuario")
+    @Mapping(source = "estado", target = "estado")
+    @Mapping(source = "roles", target = "roles")
+    @Mapping(source = "tipoIdentidad", target = "tipoIdentidad")
+
+    Usuario toUsuarioEntity(UsuarioDto dto);
+
+    // Helper mappings for nested objects
+    TipoRol toTipoRol(UsuarioDto.RoleDto roleDto);
+
+    TipoIdentidad toTipoIdentidad(UsuarioDto.TipoIdentidadDto tipoIdentidadDto);
+
+    // @Named("mapEstado")
+    // default String mapEstado(Integer estado) {
+    // switch (estado) {
+    // case 1:
+    // return "ACTIVO";
+    // case 2:
+    // return "INACTIVO";
+    // default:
+    // return "DESCONOCIDO";
+    // }
+    // }
+}
+
+
+
+    @Override
+    public ResponseEntity<HttpStatus> updateById(Long id, UsuarioUpdate dto) {
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Utilizamos el mapper para copiar todos los campos del DTO al entidad
+        // existente
+        UsuarioMapper.INSTANCE.toUsuarioEntity(dto, usuario);
+
+        // Persistimos los cambios
+        usuarioRepository.save(usuario);
+
+        Logger.getLogger(class_name).log(Level.INFO,
+                "HttpStatus: OK, User updated");
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @Override
+    public ResponseEntity<HttpStatus> updateById(Long id, UsuarioUpdate dto) {
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+
+        usuario.setNombreUsuario(dto.getNombre());
+        usuario.setApellidoUsuario(dto.getApellido());
+        usuario.setIdentidadUsuario(dto.getIdentidad());
+        usuario.setCelularUsuario(dto.getCelular());
+        usuario.setEstado(dto.getEstado());
+
+        // Convert RoleDto Set to List<TipoRol>
+        List<TipoRol> roleEntities = dto.getRoles()
+                .stream()
+                .map(UsuarioMapper.INSTANCE::toTipoRol)
+                .collect(Collectors.toList());
+        usuario.setRoles(roleEntities);
+
+        // Convert TipoIdentidadDto to TipoIdentidad entity
+        TipoIdentidad tipoIdentidadEntity = UsuarioMapper.INSTANCE
+                .toTipoIdentidad(dto.getTipoIdentidad());
+        usuario.setTipoIdentidad(tipoIdentidadEntity);
+        // Persistimos los cambios
+        usuarioRepository.save(usuario);
+
+        Logger.getLogger(class_name).log(Level.INFO,
+                "HttpStatus: OK, User updated");
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+

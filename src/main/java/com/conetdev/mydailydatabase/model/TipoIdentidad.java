@@ -1,4 +1,4 @@
-package com.conetdev.mydailydatabase.models;
+package com.conetdev.mydailydatabase.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

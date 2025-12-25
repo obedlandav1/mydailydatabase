@@ -72,7 +72,7 @@
                     const config = {
                         headers: { [csrfHeader]: csrfToken }
                     };
-                    axios.get('/api/auth/current-user', config)
+                    axios.get('/api/v1/auth/current-user', config)
                         .then(response => {
                             this.userSession = response.data;
                             this.cargando = false;
@@ -103,7 +103,7 @@
                         headers: { [csrfHeader]: csrfToken }
                     };
                     this.ocultarModal('modalLogout');
-                    axios.post('/api/auth/logout', {}, config)
+                    axios.post('/api/v1/auth/logout', {}, config)
                         .then(() => {
                             localStorage.clear();
                             this.userSession = {

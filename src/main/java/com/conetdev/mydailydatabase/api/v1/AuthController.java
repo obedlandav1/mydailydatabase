@@ -1,4 +1,4 @@
-package com.conetdev.mydailydatabase.api;
+package com.conetdev.mydailydatabase.api.v1;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -13,9 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
-import com.conetdev.mydailydatabase.models.Usuario;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
-import com.conetdev.mydailydatabase.DTO.LoginDTO;
+import com.conetdev.mydailydatabase.dto.LoginRequest;
+import com.conetdev.mydailydatabase.model.Usuario;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
@@ -36,7 +37,7 @@ public class AuthController {
 
     // PASO 1: Login inicial (Solo valida credenciales)
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDTO loginRequest,
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest,
             HttpServletRequest request) {
 
         try {

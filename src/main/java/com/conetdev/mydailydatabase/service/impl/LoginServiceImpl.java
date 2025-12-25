@@ -1,6 +1,6 @@
-package com.conetdev.mydailydatabase.security;
+package com.conetdev.mydailydatabase.service.impl;
 
-import com.conetdev.mydailydatabase.models.Usuario;
+import com.conetdev.mydailydatabase.model.Usuario;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,11 +9,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LoginUserDetails implements UserDetailsService {
+public class LoginServiceImpl implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
 
-    public LoginUserDetails(UsuarioRepository usuarioRepository) {
+    public LoginServiceImpl(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
 

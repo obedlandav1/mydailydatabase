@@ -1,7 +1,6 @@
-package com.conetdev.mydailydatabase.models;
+package com.conetdev.mydailydatabase.model;
 
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;

@@ -431,16 +431,23 @@
                     <div class="card-body">
                         <form @submit.prevent="cambiarPassword">
                             <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Contraseña actual</label>
+                                <div class="col-sm-10">
+                                    <input v-model="currentpassword" type="text" class="form-control"
+                                        placeholder="Ingrese contraseña actual" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Nueva contraseña</label>
                                 <div class="col-sm-10">
-                                    <input v-model="newpassword" type="password" class="form-control"
+                                    <input v-model="newpassword" type="text" class="form-control"
                                         placeholder="Ingrese nueva contraseña" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Reconfirme nueva contraseña</label>
                                 <div class="col-sm-10">
-                                    <input v-model="confirmpassword" type="password" class="form-control"
+                                    <input v-model="confirmpassword" type="text" class="form-control"
                                         placeholder="Vuelva a escribir la nueva contraseña" required />
                                 </div>
                             </div>
@@ -493,6 +500,7 @@
                         estado: 1
                     },
                     usuarioid: null,
+                    currentpassword: '',
                     newpassword: '',
                     confirmpassword: '',
                     selectedRols: [], // Array de IDs seleccionados
@@ -667,8 +675,8 @@
 
                     axios.post('/api/v1/usuario/crear', payload, config)
                         .then(response => {
-                            this.modalGeneral("Éxito", "Usuario creado correctamente", "text-success");
                             this.cargarVista('list');
+                            this.modalGeneral("Éxito", "Usuario creado correctamente", "text-success");
                         }).catch(error => {
                             console.error("Error cargando usuarios:", error);
                             if (error.response) {
@@ -747,8 +755,8 @@
 
                     axios.put(`/api/v1/usuario/actualizar/${this.usuarioid}`, payload, config)
                         .then(response => {
-                            this.modalGeneral("Éxito", "Usuario actualizado correctamente", "text-success");
                             this.cargarVista('list');
+                            this.modalGeneral("Éxito", "Usuario actualizado correctamente", "text-success");
                         }).catch(error => {
                             console.error("Error cargando usuarios:", error);
                             if (error.response) {
@@ -775,7 +783,7 @@
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-                    if (!this.newpassword || !this.confirmpassword) {
+                    if (!this.currentpassword || !this.newpassword || !this.confirmpassword) {
                         this.modalGeneral('Advertencia', 'Uno o mas campos necesarios están en blanco.', 'text-warning');
                         return;
                     } else if (this.newpassword !== this.confirmpassword) {
@@ -788,13 +796,17 @@
                     };
 
                     const payload = {
+                        usuariorid: this.usuarioid,
+                        currentPassword: this.currentpassword,
                         newPassword: this.newpassword
                     };
-
-                    axios.put(`/api/v1/usuario/password/${this.usuarioid}`, payload, config)
+                    axios.put('/api/v1/usuario/password', payload, config)
                         .then(response => {
+                            this.cargarUsuarios();
                             this.cargarVista('list');
                             this.modalGeneral("Éxito", "Contraseña actualizada correctamente", "text-success");
+                            // Clean fields
+                            this.currentpassword = '';
                             this.newpassword = '';
                             this.confirmpassword = '';
                         })
@@ -823,8 +835,8 @@
                     axios.delete(`/api/v1/usuario/eliminar/${this.usuarioid}`, config)
                         .then(response => {
                             this.ocultarModal('modalDelete');
-                            this.modalGeneral("Éxito", "Usuario eliminado correctamente", "text-success");
                             this.cargarVista('list');
+                            this.modalGeneral("Éxito", "Usuario eliminado correctamente", "text-success");
                         })
                         .catch(error => {
                             console.error(error);

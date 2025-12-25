@@ -1,4 +1,4 @@
-package com.conetdev.mydailydatabase.models;
+package com.conetdev.mydailydatabase.model;
 
 import java.util.List;
 
@@ -15,12 +15,15 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "tiporol")
-public class TipoRol {
+@Table(name = "razonsocial")
+public class RazonSocial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "tipoidentidad_id")
+    private Long tipoIdentidadId; 
 
     @Column(name = "nombrecorto")
     private String nombreCorto;
@@ -28,8 +31,13 @@ public class TipoRol {
     @Column(name = "nombrelargo")
     private String nombreLargo;
 
+    @Column(name = "numidentidad")
+    private String numIdentidad;
+
+    private Integer estado;
+
     // --- CORRECCIÓN DE RECURSIVIDAD ---
-    @ManyToMany(mappedBy = "roles")
-    @JsonIgnore // 1. Evita que Jackson serialice la lista de usuarios al pedir un Rol
+    @ManyToMany(mappedBy = "razonesSociales")
+    @JsonIgnore // Evita bucle JSON
     private List<Usuario> usuarios;
 }
