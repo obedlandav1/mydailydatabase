@@ -176,11 +176,14 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setPasswordUsuario(passutil.hash(newpass));
 
             usuarioRepository.save(usuario);
+
+            Logger.getLogger(class_name).log(Level.INFO,
+                    "HttpStatus: OK, User password updated");
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (Exception e) {
-            Logger.getLogger(class_name).log(Level.SEVERE, "Error on updatePassword(): ",
-                    e.toString());
+            Logger.getLogger(class_name).log(Level.SEVERE,
+                    "HttpStatus: INTERNAL_SERVER_ERROR, ", e.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

@@ -14,24 +14,24 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioList {
+public class EmpresaRequest {
 
     private Long id;
-    private String nombre;
-    private String apellido;
+    private String nombrecomercial;
+    private String razonsocial;
     private String identidad;
-    private String celular;
     private int estado;
-    private Set<RoleDto> roles;
+    private Set<UserDto> users;
     private TipoIdentidadDto tipoIdentidad;
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class RoleDto {
+    public static class UserDto {
         private Long id;
-        private String nombreLargo;
+        private String nombre;
+        private String apellido;
     }
 
     @Getter

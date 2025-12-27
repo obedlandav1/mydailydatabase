@@ -6,15 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.Set;
 
-/**
- * DTO used for creating or updating a Usuario.
- * Contains the same fields as the entity but without JPA annotations.
- */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioResponse {
+public class EmpresaResponse {
     /** Identificador del usuario. */
     private Long id;
     private String nombre;

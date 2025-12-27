@@ -2,8 +2,6 @@ package com.conetdev.mydailydatabase.api.v1;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +21,6 @@ import com.conetdev.mydailydatabase.dto.UsuarioRequest;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
 import com.conetdev.mydailydatabase.response.UsuarioResponse;
 import com.conetdev.mydailydatabase.service.UsuarioService;
-import com.conetdev.mydailydatabase.utils.PasswordUtils;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
@@ -35,8 +32,6 @@ public class UserController {
 
     @Autowired
     UsuarioService usuarioService;
-
-    private String class_name = UserController.class.getName();
 
     @GetMapping("/usuario/cargar")
     public ResponseEntity<List<UsuarioResponse>> getAll(@RequestParam(required = false) Long id) {

@@ -13,15 +13,8 @@
                     <button type="button" class="btn btn-primary">Crear</button>
                 </a>
             </div>
-
-            <!-- Cargando -->
-            <div v-if="cargando" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2 text-muted">Cargando usuarios...</p>
-            </div>
-
             <!-- Basic Bootstrap Table -->
-            <div v-if="!cargando && usuarios.length > 0" class="card">
+            <div class="card">
                 <h5 class="card-header">Registro</h5>
                 <div class="table-responsive text-nowrap">
                     <table class="table">
@@ -40,11 +33,11 @@
                         <tbody class="table-border-bottom-0">
                             <tr v-for="(u, i) in usuarios" :key="u.id">
                                 <td>{{ i + 1 }}</td>
-                                <td><strong>{{ u.nombre }}</strong></td>
-                                <td>{{ u.apellido }}</td>
-                                <td>{{ u.tipoIdentidad.nombreCorto }}</td>
-                                <td>{{ u.identidad }}</td>
-                                <td>{{ u.celular }}</td>
+                                <td><strong>{{ u.nombreUsuario }}</strong></td>
+                                <td>{{ u.apellidoUsuario }}</td>
+                                <td>{{ u.tipoIdentidad ? u.tipoIdentidad.nombreCorto : '' }}</td>
+                                <td>{{ u.identidadUsuario }}</td>
+                                <td>{{ u.celularUsuario }}</td>
                                 <td>
                                     <span class="badge me-1" :class="getEstadoInfo(u.estado).clase">
                                         {{ getEstadoInfo(u.estado).texto }}
@@ -77,6 +70,11 @@
             </div>
             <!--/ Basic Bootstrap Table -->
 
+            <!-- Cargando -->
+            <div v-if="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando usuarios...</p>
+            </div>
             <!-- No hay datos -->
             <div v-if="!cargando && usuarios.length === 0" class="alert alert-danger w-100 mt-2" role="alert">
                 No existen datos que mostrar
@@ -103,19 +101,19 @@
                         <div class="spinner-border text-primary" role="status"></div>
                         <p class="mt-2 text-muted">Cargando formulario...</p>
                     </div>
-                    <div v-else class="card-body">
+                    <div v-else="cargando" class="card-body">
                         <form @submit.prevent="crearUsuario">
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Nombre</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.nombre" type="text" class="form-control"
+                                    <input v-model="usuario.nombreUsuario" type="text" class="form-control"
                                         placeholder="Ingrese nombre del usuario" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Apellido</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.apellido" type="text" class="form-control"
+                                    <input v-model="usuario.apellidoUsuario" type="text" class="form-control"
                                         placeholder="Ingrese apellido del usuario" required />
                                 </div>
                             </div>
@@ -123,8 +121,7 @@
                                 <label class="col-sm-2 col-form-label">Tipo Identidad</label>
                                 <div class="col-sm-10">
                                     <select v-model="usuario.tipoIdentidad.id" class="form-select" required>
-                                        <option :value="null" disabled selected>Seleccione un tipo de identidad
-                                        </option>
+                                        <option :value="null" disabled selected>Seleccione un tipo de identidad</option>
                                         <option value="1">N/A</option>
                                         <option value="2">DNI</option>
                                         <option value="3">CARNET EXT.</option>
@@ -135,21 +132,21 @@
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Num. de identidad</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.identidad" type="text" class="form-control"
+                                    <input v-model="usuario.identidadUsuario" type="text" class="form-control"
                                         placeholder="Ingrese el numero de identidad del usuario" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Contraseña</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.password" type="password" class="form-control"
+                                    <input v-model="usuario.passwordUsuario" type="password" class="form-control"
                                         placeholder="Ingrese la contraseña del usuario" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Número celular</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.celular" type="text" class="form-control"
+                                    <input v-model="usuario.celularUsuario" type="text" class="form-control"
                                         placeholder="Ingrese el numero de celular del usuario" required />
                                 </div>
                             </div>
@@ -184,8 +181,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" :value="4"
                                                     v-model="selectedRols" id="rol-4">
-                                                <label class="form-check-label" for="rol-4">JEFE DE
-                                                    PROYECTOS</label>
+                                                <label class="form-check-label" for="rol-4">JEFE DE PROYECTOS</label>
                                             </div>
                                         </div>
                                         <div class="col-6 mb-2">
@@ -200,8 +196,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" :value="6"
                                                     v-model="selectedRols" id="rol-6">
-                                                <label class="form-check-label" for="rol-6">ASISTENTE
-                                                    PROYECTO.</label>
+                                                <label class="form-check-label" for="rol-6">ASISTENTE PROYECTO.</label>
                                             </div>
                                         </div>
                                         <div class="col-6 mb-2">
@@ -266,19 +261,19 @@
                         <div class="spinner-border text-primary" role="status"></div>
                         <p class="mt-2 text-muted">Cargando formulario...</p>
                     </div>
-                    <div v-else class="card-body">
+                    <div v-else="cargando" class="card-body">
                         <form @submit.prevent="actualizarUsuario">
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Nombre</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.nombre" type="text" class="form-control"
+                                    <input v-model="usuario.nombreUsuario" type="text" class="form-control"
                                         placeholder="Ingrese nombre del usuario" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Apellido</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.apellido" type="text" class="form-control"
+                                    <input v-model="usuario.apellidoUsuario" type="text" class="form-control"
                                         placeholder="Ingrese apellido del usuario" required />
                                 </div>
                             </div>
@@ -286,8 +281,7 @@
                                 <label class="col-sm-2 col-form-label">Tipo Identidad</label>
                                 <div class="col-sm-10">
                                     <select v-model="usuario.tipoIdentidad.id" class="form-select" required>
-                                        <option :value="null" disabled selected>Seleccione un tipo de identidad
-                                        </option>
+                                        <option :value="null" disabled selected>Seleccione un tipo de identidad</option>
                                         <option value="1">N/A</option>
                                         <option value="2">DNI</option>
                                         <option value="3">CARNET EXT.</option>
@@ -298,14 +292,14 @@
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Num. de identidad</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.identidad" type="text" class="form-control"
+                                    <input v-model="usuario.identidadUsuario" type="text" class="form-control"
                                         placeholder="Ingrese el numero de identidad del usuario" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Número celular</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.celular" type="text" class="form-control"
+                                    <input v-model="usuario.celularUsuario" type="text" class="form-control"
                                         placeholder="Ingrese el numero de celular del usuario" required />
                                 </div>
                             </div>
@@ -340,8 +334,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" :value="4"
                                                     v-model="selectedRols" id="rol-4">
-                                                <label class="form-check-label" for="rol-4">JEFE DE
-                                                    PROYECTOS</label>
+                                                <label class="form-check-label" for="rol-4">JEFE DE PROYECTOS</label>
                                             </div>
                                         </div>
                                         <div class="col-6 mb-2">
@@ -356,8 +349,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" :value="6"
                                                     v-model="selectedRols" id="rol-6">
-                                                <label class="form-check-label" for="rol-6">ASISTENTE
-                                                    PROYECTO.</label>
+                                                <label class="form-check-label" for="rol-6">ASISTENTE PROYECTO.</label>
                                             </div>
                                         </div>
                                         <div class="col-6 mb-2">
@@ -405,7 +397,7 @@
 
                             <div class="row justify-content-end">
                                 <div class="col-sm-10">
-                                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
                                 </div>
                             </div>
                         </form>
@@ -431,16 +423,23 @@
                     <div class="card-body">
                         <form @submit.prevent="cambiarPassword">
                             <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Contraseña actual</label>
+                                <div class="col-sm-10">
+                                    <input v-model="currentpassword" type="text" class="form-control"
+                                        placeholder="Ingrese contraseña actual" required />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Nueva contraseña</label>
                                 <div class="col-sm-10">
-                                    <input v-model="newpassword" type="password" class="form-control"
+                                    <input v-model="newpassword" type="text" class="form-control"
                                         placeholder="Ingrese nueva contraseña" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Reconfirme nueva contraseña</label>
                                 <div class="col-sm-10">
-                                    <input v-model="confirmpassword" type="password" class="form-control"
+                                    <input v-model="confirmpassword" type="text" class="form-control"
                                         placeholder="Vuelva a escribir la nueva contraseña" required />
                                 </div>
                             </div>
@@ -466,33 +465,34 @@
             data() {
                 return {
                     // VARIABLES SESION
-                    userSession: {
-                        username: '',
-                        fullName: '',
-                        roleId: '',
-                        roleName: ''
-                    },
+                    idusuario: '',
+                    nomusuario: '',
+                    rolusuario: '',
+                    nomrol: '',
                     // VARIABLES GENERALES
                     vista: '',
                     modalTitulo: '',
                     modalMensaje: '',
                     modalTipo: '',
-                    cargando: null,
+                    cargando: false,
                     error: null,
                     // VARIABLES USUARIOS
                     usuarios: [],
                     usuario: {
                         id: null,
                         tipoIdentidad: { id: null },
-                        nombre: '',
-                        apellido: '',
-                        identidad: '',
-                        password: '',
-                        celular: '',
+                        nombreUsuario: '',
+                        apellidoUsuario: '',
+                        identidadUsuario: '',
+                        passwordUsuario: '',
+                        celularUsuario: '',
                         roles: [],
                         estado: 1
                     },
-                    usuarioid: null,
+                    usuarioId: null,
+                    currentpassword: '',
+                    usuarioId: null,
+                    currentpassword: '',
                     newpassword: '',
                     confirmpassword: '',
                     selectedRols: [], // Array de IDs seleccionados
@@ -501,73 +501,54 @@
             methods: {
                 // METODOS SESION
                 cargarSesion: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-                    axios.get('/api/v1/auth/current-user', config)
+                    axios.get('/api/session/usuario')
                         .then(response => {
-                            this.userSession = response.data;
+                            const user = response.data;
+                            if (!user || !user.idusuario) {
+                                alert("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+                                window.location.href = "/";
+                            } else {
+                                this.idusuario = user.idusuario;
+                                this.nomusuario = user.nomusuario;
+                                this.rolusuario = user.rolusuario;
+                                this.nomrol = user.nomrol;
+                            }
                         })
                         .catch(error => {
                             console.error("Error al verificar sesión:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 401:
-                                        this.modalError('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
-                                        break;
-                                    case 403:
-                                        this.modalError('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
-                                        break;
-                                    default:
-                                        this.modalError('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
+                            alert("Error al verificar sesión. Por favor, inicia sesión nuevamente.");
+                            window.location.href = "/";
                         });
                 },
+                cerrarSesion: function () {
+                    this.mostrarModal('modalLogout');
+                },
                 salirSesion: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-                    this.ocultarModal('modalLogout');
-                    axios.post('/api/v1/auth/logout', {}, config)
+                    axios.post('/api/session/logout')
                         .then(() => {
                             localStorage.clear();
-                            this.userSession = {
-                                username: '',
-                                fullName: '',
-                                roleId: '',
-                                roleName: ''
-                            };
-                            this.modalGeneral('Sesión cerrada', 'Sesión cerrada, vuelva a iniciar sesión.', 'text-success');
+                            this.idusuario = '';
+                            this.nomusuario = '';
+                            this.rolusuario = '';
+                            this.nomrol = '';
+                            this.ocultarModal('modalLogout');
                             setTimeout(() => {
-                                window.location.href = "/login";
+                                window.location.href = "/";
                             }, 1500);
                         })
                         .catch(error => {
                             console.error("Error al cerrar sesión:", error);
-                            if (error.response) {
-                                this.modalError('Error', 'Error al cerrar sesión, recargue la página.', 'text-danger');
-                            } else {
-                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
+                            this.modalGeneral("Error", "No se pudo cerrar la sesión correctamente.", "text-danger");
                         });
                 },
                 // METODOS GENERALES
-                modalGeneral: function (titulo, mensaje, tipo) {
+                modalGeneral(titulo, mensaje, tipo) {
                     this.modalTitulo = titulo;
                     this.modalMensaje = mensaje;
                     this.modalTipo = tipo;
                     this.mostrarModal('modalGeneral');
                 },
-                mostrarModal: function (idModal) {
+                mostrarModal(idModal) {
                     const elemento = document.getElementById(idModal);
                     if (elemento) {
                         const modal = bootstrap.Modal.getOrCreateInstance(elemento);
@@ -576,7 +557,7 @@
                         console.error("No se encontró el modal con ID:", idModal);
                     }
                 },
-                ocultarModal: function (idModal) {
+                ocultarModal(idModal) {
                     const elemento = document.getElementById(idModal);
                     if (elemento) {
                         const modal = bootstrap.Modal.getInstance(elemento);
@@ -612,74 +593,28 @@
                 },
                 // METODOS LISTADO
                 cargarUsuarios: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
                     this.cargando = true;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-
-                    //sthis.usuarios = [];
-                    axios.get('/api/v1/usuario/cargar', config)
+                    axios.get('/api/usuario')
                         .then(response => {
+                            // Map 'id' to 'idusuario' if needed, generally Spring REST returns field names matching the bean properties.
+                            // The bean has 'id'. The frontend usually expects what the bean sends.
                             this.usuarios = response.data;
-                            //this.modalGeneral("Éxito", "Usuarios cargados correctamente", "text-success");
-                        }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 204:
-                                        this.modalGeneral('Error', 'No se encontraron usuarios.', 'text-danger');
-                                        break;
-                                    default:
-                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
-                        }).finally(() => {
                             this.cargando = false;
-                        });
+                        })
                 },
                 // METODOS CREAR
                 crearUsuario: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-
                     //this.usuario.tipoIdentidad = { id: this.usuario.tipoIdentidadId };
                     this.usuario.roles = this.selectedRols.map(id => ({ id: id }));
-                    const payload = {
-                        nombre: this.usuario.nombre,
-                        apellido: this.usuario.apellido,
-                        identidad: this.usuario.identidad,
-                        password: this.usuario.password,
-                        celular: this.usuario.celular,
-                        estado: this.usuario.estado,
-                        roles: this.selectedRols,
-                        tipoIdentidad: this.usuario.tipoIdentidad.id
-                    };
-
-                    axios.post('/api/v1/usuario/crear', payload, config)
+                    axios.post('/api/usuario', this.usuario)
                         .then(response => {
-                            this.modalGeneral("Éxito", "Usuario creado correctamente", "text-success");
+                            this.cargarUsuarios();
                             this.cargarVista('list');
-                        }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                if (error.response.status === 500) {
-                                    this.modalGeneral('Error', 'Ocurrió un error al crear el usuario.', 'text-danger');
-                                } else {
-                                    this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                                }
-                            }
-                        }).finally(() => {
-                            this.cargando = false;
+                            this.modalGeneral("Éxito", "Usuario creado correctamente", "text-success");
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            this.modalGeneral("Error", "No se pudo crear el usuario", "text-danger");
                         });
                 },
                 // METODOS EDITAR
@@ -688,17 +623,8 @@
                     this.cargarVista('edit');
                 },
                 cargarUsuario: function (id) {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
                     this.cargando = true;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken },
-                    };
-
-                    this.usuario = {};
-                    axios.get(`/api/v1/usuario/buscar/${this.usuarioid}`, config)
+                    axios.get(`/api/usuario/${id}`)
                         .then(response => {
                             this.usuario = response.data;
                             // Map roles to selectedRols IDs for checkboxes
@@ -707,63 +633,27 @@
                             } else {
                                 this.selectedRols = [];
                             }
-                        }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 204:
-                                        this.modalGeneral('Error', 'No se encontraron datos.', 'text-danger');
-                                        break;
-                                    default:
-                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
-                        }).finally(() => {
+                        })
+                        .catch(error => {
+                            this.modalGeneral('Error', 'Se registró un error al momento de cargar los datos', 'text-danger');
+                            console.error('Error al cargar usuario:', error);
+                        })
+                        .finally(() => {
                             this.cargando = false;
                         });
                 },
                 actualizarUsuario: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    this.cargando = true;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-
                     this.usuario.roles = this.selectedRols.map(id => ({ id: id }));
-                    const payload = {
-                        nombre: this.usuario.nombre,
-                        apellido: this.usuario.apellido,
-                        identidad: this.usuario.identidad,
-                        celular: this.usuario.celular,
-                        estado: this.usuario.estado,
-                        roles: this.selectedRols,
-                        tipoIdentidad: this.usuario.tipoIdentidad.id
-                    };
-
-                    axios.put(`/api/v1/usuario/actualizar/${this.usuarioid}`, payload, config)
+                    console.log(this.usuario);
+                    axios.put('/api/usuario/' + this.usuario.id, this.usuario)
                         .then(response => {
-                            this.modalGeneral("Éxito", "Usuario actualizado correctamente", "text-success");
+                            this.cargarUsuarios();
                             this.cargarVista('list');
-                        }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 204:
-                                        this.modalGeneral('Error', 'No se encontraron datos.', 'text-danger');
-                                        break;
-                                    default:
-                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
-                        }).finally(() => {
-                            this.cargando = false;
+                            this.modalGeneral("Éxito", "Usuario actualizado correctamente", "text-success");
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            this.modalGeneral("Error", "No se pudo actualizar el usuario", "text-danger");
                         });
                 },
                 // METODOS CAMBIAR CONTRASEÑA
@@ -772,10 +662,8 @@
                     this.cargarVista('editpass');
                 },
                 cambiarPassword: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-                    if (!this.newpassword || !this.confirmpassword) {
+                    if (!this.currentpassword || !this.newpassword || !this.confirmpassword) {
                         this.modalGeneral('Advertencia', 'Uno o mas campos necesarios están en blanco.', 'text-warning');
                         return;
                     } else if (this.newpassword !== this.confirmpassword) {
@@ -783,18 +671,17 @@
                         return;
                     }
 
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-
-                    const payload = {
+                    const data = {
+                        currentPassword: this.currentpassword,
                         newPassword: this.newpassword
                     };
-
-                    axios.put(`/api/v1/usuario/password/${this.usuarioid}`, payload, config)
+                    axios.put('/api/usuario/password/' + this.usuarioid, data)
                         .then(response => {
+                            this.cargarUsuarios();
                             this.cargarVista('list');
                             this.modalGeneral("Éxito", "Contraseña actualizada correctamente", "text-success");
+                            // Clean fields
+                            this.currentpassword = '';
                             this.newpassword = '';
                             this.confirmpassword = '';
                         })
@@ -809,28 +696,23 @@
                 },
                 // METODOS ELIMINAR
                 prepararEliminar: function (id) {
-                    this.usuarioid = id;
+                    this.usuarioId = id;
                     this.mostrarModal('modalDelete');
                 },
                 eliminarUsuario: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken },
-                    };
-
-                    axios.delete(`/api/v1/usuario/eliminar/${this.usuarioid}`, config)
-                        .then(response => {
-                            this.ocultarModal('modalDelete');
-                            this.modalGeneral("Éxito", "Usuario eliminado correctamente", "text-success");
-                            this.cargarVista('list');
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            this.ocultarModal('modalDelete');
-                            this.modalGeneral("Error", "No se pudo eliminar el usuario", "text-danger");
-                        });
+                    if (this.usuarioId) {
+                        axios.delete('/api/usuario/' + this.usuarioId)
+                            .then(response => {
+                                this.cargarUsuarios();
+                                this.ocultarModal('modalDelete');
+                                this.usuarioId = null;
+                                this.modalGeneral("Éxito", "Usuario eliminado correctamente", "text-success");
+                            })
+                            .catch(error => {
+                                console.error(error);
+                                this.modalGeneral("Error", "No se pudo eliminar el usuario", "text-danger");
+                            });
+                    }
                 },
                 limpiarUsuario: function () {
                     this.usuario = {

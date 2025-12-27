@@ -1,7 +1,6 @@
 package com.conetdev.mydailydatabase.mapper;
 
 import com.conetdev.mydailydatabase.dto.UsuarioRequest;
-import com.conetdev.mydailydatabase.dto.UsuarioList;
 import com.conetdev.mydailydatabase.model.TipoIdentidad;
 import com.conetdev.mydailydatabase.model.TipoRol;
 import com.conetdev.mydailydatabase.model.Usuario;
@@ -9,7 +8,6 @@ import com.conetdev.mydailydatabase.response.UsuarioResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 import java.util.Set;
@@ -21,9 +19,9 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
 
-    UsuarioMapper INSTANCE = Mappers.getMapper(UsuarioMapper.class);
+    // UsuarioMapper INSTANCE = Mappers.getMapper(UsuarioMapper.class);
 
-    /* ---------- Entity → Response DTO ---------- */
+    /* ---------- Entity → Response DTO (lectura) ---------- */
     @Mapping(source = "id", target = "id")
     @Mapping(source = "nombreUsuario", target = "nombre")
     @Mapping(source = "apellidoUsuario", target = "apellido")
@@ -32,9 +30,9 @@ public interface UsuarioMapper {
     @Mapping(source = "estado", target = "estado")
     UsuarioResponse toUsuarioResponse(Usuario usuario);
 
-    UsuarioList.RoleDto toUsuarioResponseRole(TipoRol rol);
+    UsuarioResponse.RoleDto toUsuarioResponseRole(TipoRol rol);
 
-    UsuarioList.TipoIdentidadDto toUsuarioResponseTipoIdentidad(TipoIdentidad tipo);
+    UsuarioResponse.TipoIdentidadDto toUsuarioResponseTipoIdentidad(TipoIdentidad tipo);
 
     /* ---------- DTO → Entity (creación) ---------- */
     @Mapping(source = "nombre", target = "nombreUsuario")
