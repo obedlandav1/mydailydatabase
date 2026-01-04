@@ -1,4 +1,4 @@
-package com.conetdev.mydailydatabase.dto;
+package com.conetdev.mydailydatabase.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

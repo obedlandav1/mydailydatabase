@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.conetdev.mydailydatabase.dto.UsuarioRequest;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
+import com.conetdev.mydailydatabase.request.UsuarioRequest;
 import com.conetdev.mydailydatabase.response.UsuarioResponse;
 import com.conetdev.mydailydatabase.service.UsuarioService;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/v1")
-public class UserController {
+public class UsuarioController {
 
     @Autowired
     UsuarioRepository userRepository;

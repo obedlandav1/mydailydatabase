@@ -1,9 +1,9 @@
 package com.conetdev.mydailydatabase.mapper;
 
-import com.conetdev.mydailydatabase.dto.UsuarioRequest;
 import com.conetdev.mydailydatabase.model.TipoIdentidad;
 import com.conetdev.mydailydatabase.model.TipoRol;
 import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.request.UsuarioRequest;
 import com.conetdev.mydailydatabase.response.UsuarioResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -7,7 +7,7 @@
         <!-- List -->
         <div v-if="vista === 'list'" class="container-xxl flex-grow-1 container-p-y">
             <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
-                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Registro /</span> Usuarios
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Registro /</span> Empresas
                 </h4>
                 <a @click="cargarVista('create')">
                     <button type="button" class="btn btn-primary">Crear</button>
@@ -17,37 +17,35 @@
             <!-- Cargando -->
             <div v-if="cargando" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2 text-muted">Cargando usuarios...</p>
+                <p class="mt-2 text-muted">Cargando empresas...</p>
             </div>
 
             <!-- Basic Bootstrap Table -->
-            <div v-if="!cargando && usuarios.length > 0" class="card">
+            <div v-if="!cargando && empresas.length > 0" class="card">
                 <h5 class="card-header">Registro</h5>
                 <div class="table-responsive text-nowrap">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>N°</th>
-                                <th>Nombre</th>
-                                <th>Apellido</th>
+                                <th>Nombre Comercial</th>
+                                <th>Razon Social</th>
                                 <th>Tipo Identidad</th>
                                 <th>Num. Identidad</th>
-                                <th>Celular</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            <tr v-for="(u, i) in usuarios" :key="u.id">
+                            <tr v-for="(e, i) in empresas" :key="e.id">
                                 <td>{{ i + 1 }}</td>
-                                <td><strong>{{ u.nombre }}</strong></td>
-                                <td>{{ u.apellido }}</td>
-                                <td>{{ u.tipoIdentidad.nombreCorto }}</td>
-                                <td>{{ u.identidad }}</td>
-                                <td>{{ u.celular }}</td>
+                                <td><strong>{{ e.nombreCorto }}</strong></td>
+                                <td>{{ e.nombreLargo }}</td>
+                                <td>{{ e.tipoIdentidad.nombreCorto }}</td>
+                                <td>{{ e.numIdentidad }}</td>
                                 <td>
-                                    <span class="badge me-1" :class="getEstadoInfo(u.estado).clase">
-                                        {{ getEstadoInfo(u.estado).texto }}
+                                    <span class="badge me-1" :class="getEstadoInfo(e.estado).clase">
+                                        {{ getEstadoInfo(e.estado).texto }}
                                     </span>
                                 </td>
                                 <td>
@@ -57,14 +55,14 @@
                                             <i class="bx bx-dots-vertical-rounded"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a @click="modificarpassUsuario(u.id)" class="dropdown-item">
-                                                <i class="bx bx-key me-1"></i> Cambiar password
+                                            <a @click="modificarUsuarios(e.id)" class="dropdown-item">
+                                                <i class="bx bx-user-plus me-1"></i> Asignar Usuarios
                                             </a>
-                                            <a @click="seleccionarUsuario(u.id)" class="dropdown-item">
+                                            <a @click="seleccionarEmpresa(e.id)" class="dropdown-item">
                                                 <i class="bx bx-edit-alt me-1"></i> Editar
                                             </a>
                                             <a href="javascript:void(0);" class="dropdown-item"
-                                                @click="prepararEliminar(u.id)">
+                                                @click="prepararEliminar(e.id)">
                                                 <i class="bx bx-trash me-1"></i> Eliminar
                                             </a>
                                         </div>
@@ -78,19 +76,61 @@
             <!--/ Basic Bootstrap Table -->
 
             <!-- No hay datos -->
-            <div v-if="!cargando && usuarios.length === 0" class="alert alert-danger w-100 mt-2" role="alert">
+            <div v-if="!cargando && empresas.length === 0" class="alert alert-danger w-100 mt-2" role="alert">
                 No existen datos que mostrar
             </div>
 
         </div>
         <!-- /List -->
 
+        <!-- Assign Users -->
+        <div v-if="vista === 'assign'" class="container-xxl flex-grow-1 container-p-y">
+            <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Asignar /</span> Usuarios a Empresa
+                </h4>
+                <a @click="cargarVista('list')">
+                    <button type="button" class="btn btn-primary">Regresar</button>
+                </a>
+            </div>
+            <div class="col-xxl">
+                <div class="card mb-4">
+                    <div v-if="cargando" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Cargando usuarios...</p>
+                    </div>
+                    <div v-else class="card-body">
+                        <p class="mb-4">Seleccione los usuarios que desea asignar a la empresa: <strong>{{
+                                empresa.nombreCorto }}</strong></p>
+                        <div class="row">
+                            <div v-for="u in usuariosDisponibles" :key="u.id" class="col-md-4 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" :value="u.id"
+                                        v-model="selectedUserIds" :id="'user-' + u.id">
+                                    <label class="form-check-label" :for="'user-' + u.id">
+                                        {{ u.nombre }} {{ u.apellido }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="usuariosDisponibles.length === 0" class="alert alert-warning">
+                            No hay usuarios disponibles para asignar.
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <button @click="asignarUsuarios" class="btn btn-primary">Guardar Asignación</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Assign Users -->
+
         <!-- Create -->
         <div v-if="vista === 'create'" class="container-xxl flex-grow-1 container-p-y">
             <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
-                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Crear /</span> Usuario
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Crear /</span> Empresa
                 </h4>
-                <!--<a th:href="@{/administrator/user}">-->
                 <a @click="cargarVista('list')">
                     <button type="button" class="btn btn-primary">Regresar</button>
                 </a>
@@ -104,136 +144,39 @@
                         <p class="mt-2 text-muted">Cargando formulario...</p>
                     </div>
                     <div v-else class="card-body">
-                        <form @submit.prevent="crearUsuario">
+                        <form @submit.prevent="crearEmpresa">
                             <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Nombre</label>
+                                <label class="col-sm-2 col-form-label">Nombre Corto</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.nombre" type="text" class="form-control"
-                                        placeholder="Ingrese nombre del usuario" required />
+                                    <input v-model="empresa.nombreCorto" type="text" class="form-control"
+                                        placeholder="Ingrese nombre corto de la empresa" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Apellido</label>
+                                <label class="col-sm-2 col-form-label">Nombre Largo</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.apellido" type="text" class="form-control"
-                                        placeholder="Ingrese apellido del usuario" required />
+                                    <input v-model="empresa.nombreLargo" type="text" class="form-control"
+                                        placeholder="Ingrese nombre largo de la empresa" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Tipo Identidad</label>
                                 <div class="col-sm-10">
-                                    <select v-model="usuario.tipoIdentidad.id" class="form-select" required>
+                                    <select v-model="empresa.tipoIdentidadId" class="form-select" required>
                                         <option :value="null" disabled selected>Seleccione un tipo de identidad
                                         </option>
-                                        <option value="1">N/A</option>
-                                        <option value="2">DNI</option>
-                                        <option value="3">CARNET EXT.</option>
-                                        <option value="6">PASAPORTE</option>
+                                        <option :value="1">N/A</option>
+                                        <option :value="2">DNI</option>
+                                        <option :value="3">CARNET EXT.</option>
+                                        <option :value="6">PASAPORTE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Num. de identidad</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.identidad" type="text" class="form-control"
-                                        placeholder="Ingrese el numero de identidad del usuario" required />
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Contraseña</label>
-                                <div class="col-sm-10">
-                                    <input v-model="usuario.password" type="password" class="form-control"
-                                        placeholder="Ingrese la contraseña del usuario" required />
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Número celular</label>
-                                <div class="col-sm-10">
-                                    <input v-model="usuario.celular" type="text" class="form-control"
-                                        placeholder="Ingrese el numero de celular del usuario" required />
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Rol usuario</label>
-                                <div class="col-sm-10">
-                                    <div class="row">
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="1"
-                                                    v-model="selectedRols" id="rol-1">
-                                                <label class="form-check-label" for="rol-1">ADMINISTRADOR DE
-                                                    SISTEMA</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="2"
-                                                    v-model="selectedRols" id="rol-2">
-                                                <label class="form-check-label" for="rol-2">GERENCIA GENERAL</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="3"
-                                                    v-model="selectedRols" id="rol-3">
-                                                <label class="form-check-label" for="rol-3">COORDINAR
-                                                    ADMINISTRATIVO</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="4"
-                                                    v-model="selectedRols" id="rol-4">
-                                                <label class="form-check-label" for="rol-4">JEFE DE
-                                                    PROYECTOS</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="5"
-                                                    v-model="selectedRols" id="rol-5">
-                                                <label class="form-check-label" for="rol-5">ASISTENTE
-                                                    ADMINISTRATIVO</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="6"
-                                                    v-model="selectedRols" id="rol-6">
-                                                <label class="form-check-label" for="rol-6">ASISTENTE
-                                                    PROYECTO.</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="7"
-                                                    v-model="selectedRols" id="rol-7">
-                                                <label class="form-check-label" for="rol-7">ADMINISTRADOR DE
-                                                    OBRA</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="8"
-                                                    v-model="selectedRols" id="rol-8">
-                                                <label class="form-check-label" for="rol-8">ALMACENERO</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="9"
-                                                    v-model="selectedRols" id="rol-9">
-                                                <label class="form-check-label" for="rol-9">REGISTRADOR</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="10"
-                                                    v-model="selectedRols" id="rol-10">
-                                                <label class="form-check-label" for="rol-10">DIGITADOR</label>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <input v-model="empresa.numIdentidad" type="text" class="form-control"
+                                        placeholder="Ingrese el numero de identidad de la empresa" required />
                                 </div>
                             </div>
                             <div class="row justify-content-end">
@@ -251,9 +194,8 @@
         <!-- Edit -->
         <div v-if="vista === 'edit'" class="container-xxl flex-grow-1 container-p-y">
             <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
-                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Editar /</span> Usuario
+                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Editar /</span> Empresa
                 </h4>
-                <!--<a th:href="@{/administrator/user}">-->
                 <a @click="cargarVista('list')">
                     <button type="button" class="btn btn-primary">Regresar</button>
                 </a>
@@ -267,135 +209,45 @@
                         <p class="mt-2 text-muted">Cargando formulario...</p>
                     </div>
                     <div v-else class="card-body">
-                        <form @submit.prevent="actualizarUsuario">
+                        <form @submit.prevent="actualizarEmpresa">
                             <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Nombre</label>
+                                <label class="col-sm-2 col-form-label">Nombre Corto</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.nombre" type="text" class="form-control"
-                                        placeholder="Ingrese nombre del usuario" required />
+                                    <input v-model="empresa.nombreCorto" type="text" class="form-control"
+                                        placeholder="Ingrese nombre corto de la empresa" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Apellido</label>
+                                <label class="col-sm-2 col-form-label">Nombre Largo</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.apellido" type="text" class="form-control"
-                                        placeholder="Ingrese apellido del usuario" required />
+                                    <input v-model="empresa.nombreLargo" type="text" class="form-control"
+                                        placeholder="Ingrese nombre largo de la empresa" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Tipo Identidad</label>
                                 <div class="col-sm-10">
-                                    <select v-model="usuario.tipoIdentidad.id" class="form-select" required>
+                                    <select v-model="empresa.tipoIdentidadId" class="form-select" required>
                                         <option :value="null" disabled selected>Seleccione un tipo de identidad
                                         </option>
-                                        <option value="1">N/A</option>
-                                        <option value="2">DNI</option>
-                                        <option value="3">CARNET EXT.</option>
-                                        <option value="6">PASAPORTE</option>
+                                        <option :value="1">N/A</option>
+                                        <option :value="2">DNI</option>
+                                        <option :value="3">CARNET EXT.</option>
+                                        <option :value="6">PASAPORTE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Num. de identidad</label>
                                 <div class="col-sm-10">
-                                    <input v-model="usuario.identidad" type="text" class="form-control"
-                                        placeholder="Ingrese el numero de identidad del usuario" required />
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Número celular</label>
-                                <div class="col-sm-10">
-                                    <input v-model="usuario.celular" type="text" class="form-control"
-                                        placeholder="Ingrese el numero de celular del usuario" required />
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Rol usuario</label>
-                                <div class="col-sm-10">
-                                    <div class="row">
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="1"
-                                                    v-model="selectedRols" id="rol-1">
-                                                <label class="form-check-label" for="rol-1">ADMINISTRADOR DE
-                                                    SISTEMA</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="2"
-                                                    v-model="selectedRols" id="rol-2">
-                                                <label class="form-check-label" for="rol-2">GERENCIA GENERAL</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="3"
-                                                    v-model="selectedRols" id="rol-3">
-                                                <label class="form-check-label" for="rol-3">COORDINAR
-                                                    ADMINISTRATIVO</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="4"
-                                                    v-model="selectedRols" id="rol-4">
-                                                <label class="form-check-label" for="rol-4">JEFE DE
-                                                    PROYECTOS</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="5"
-                                                    v-model="selectedRols" id="rol-5">
-                                                <label class="form-check-label" for="rol-5">ASISTENTE
-                                                    ADMINISTRATIVO</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="6"
-                                                    v-model="selectedRols" id="rol-6">
-                                                <label class="form-check-label" for="rol-6">ASISTENTE
-                                                    PROYECTO.</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="7"
-                                                    v-model="selectedRols" id="rol-7">
-                                                <label class="form-check-label" for="rol-7">ADMINISTRADOR DE
-                                                    OBRA</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="8"
-                                                    v-model="selectedRols" id="rol-8">
-                                                <label class="form-check-label" for="rol-8">ALMACENERO</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="9"
-                                                    v-model="selectedRols" id="rol-9">
-                                                <label class="form-check-label" for="rol-9">REGISTRADOR</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" :value="10"
-                                                    v-model="selectedRols" id="rol-10">
-                                                <label class="form-check-label" for="rol-10">DIGITADOR</label>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <input v-model="empresa.numIdentidad" type="text" class="form-control"
+                                        placeholder="Ingrese el numero de identidad de la empresa" required />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Estado</label>
                                 <div class="col-sm-10">
-                                    <select v-model="usuario.estado" class="form-select" required>
+                                    <select v-model="empresa.estado" class="form-select" required>
                                         <option :value="1">Activo</option>
                                         <option :value="2">Suspendido</option>
                                         <option :value="3">Eliminado</option>
@@ -414,47 +266,6 @@
             </div>
         </div>
         <!-- /Edit -->
-
-        <!-- Pass -->
-        <div v-if="vista === 'editpass'" class="container-xxl flex-grow-1 container-p-y">
-            <div class="align-items-center d-flex justify-content-between mt-0 mb-4">
-                <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Modificar /</span> Contraseña
-                </h4>
-                <!--<a th:href="@{/administrator/user}">-->
-                <a @click="cargarVista('list')">
-                    <button type="button" class="btn btn-primary">Regresar</button>
-                </a>
-            </div>
-            <!-- Basic Layout -->
-            <div class="col-xxl">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <form @submit.prevent="cambiarPassword">
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Nueva contraseña</label>
-                                <div class="col-sm-10">
-                                    <input v-model="newpassword" type="password" class="form-control"
-                                        placeholder="Ingrese nueva contraseña" required />
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Reconfirme nueva contraseña</label>
-                                <div class="col-sm-10">
-                                    <input v-model="confirmpassword" type="password" class="form-control"
-                                        placeholder="Vuelva a escribir la nueva contraseña" required />
-                                </div>
-                            </div>
-                            <div class="row justify-content-end">
-                                <div class="col-sm-10">
-                                    <button type="submit" class="btn btn-primary">Guardar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- /Pass -->
 
     </div>
     <!-- / Content -->
@@ -479,23 +290,19 @@
                     modalTipo: '',
                     cargando: null,
                     error: null,
-                    // VARIABLES USUARIOS
-                    usuarios: [],
-                    usuario: {
+                    // VARIABLES EMPRESAS
+                    empresas: [],
+                    empresa: {
                         id: null,
                         tipoIdentidad: { id: null },
-                        nombre: '',
-                        apellido: '',
-                        identidad: '',
-                        password: '',
-                        celular: '',
-                        roles: [],
+                        nombreCorto: '',
+                        nombreLargo: '',
+                        numIdentidad: '',
                         estado: 1
                     },
-                    usuarioid: null,
-                    newpassword: '',
-                    confirmpassword: '',
-                    selectedRols: [], // Array de IDs seleccionados
+                    empresaid: null,
+                    usuariosDisponibles: [],
+                    selectedUserIds: [],
                 }
             },
             methods: {
@@ -513,20 +320,6 @@
                         })
                         .catch(error => {
                             console.error("Error al verificar sesión:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 401:
-                                        this.modalError('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
-                                        break;
-                                    case 403:
-                                        this.modalError('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
-                                        break;
-                                    default:
-                                        this.modalError('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
                         });
                 },
                 salirSesion: function () {
@@ -540,24 +333,10 @@
                     axios.post('/api/v1/auth/logout', {}, config)
                         .then(() => {
                             localStorage.clear();
-                            this.userSession = {
-                                username: '',
-                                fullName: '',
-                                roleId: '',
-                                roleName: ''
-                            };
-                            this.modalGeneral('Sesión cerrada', 'Sesión cerrada, vuelva a iniciar sesión.', 'text-success');
-                            setTimeout(() => {
-                                window.location.href = "/login";
-                            }, 1500);
+                            window.location.href = "/login";
                         })
                         .catch(error => {
                             console.error("Error al cerrar sesión:", error);
-                            if (error.response) {
-                                this.modalError('Error', 'Error al cerrar sesión, recargue la página.', 'text-danger');
-                            } else {
-                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
                         });
                 },
                 // METODOS GENERALES
@@ -572,8 +351,6 @@
                     if (elemento) {
                         const modal = bootstrap.Modal.getOrCreateInstance(elemento);
                         modal.show();
-                    } else {
-                        console.error("No se encontró el modal con ID:", idModal);
                     }
                 },
                 ocultarModal: function (idModal) {
@@ -587,18 +364,19 @@
                     switch (view) {
                         case 'list':
                             this.vista = 'list';
-                            this.cargarUsuarios();
+                            this.cargarEmpresas();
                             break;
                         case 'create':
                             this.vista = 'create';
-                            this.limpiarUsuario();
+                            this.limpiarEmpresa();
                             break;
                         case 'edit':
                             this.vista = 'edit';
-                            this.cargarUsuario(this.usuarioid);
+                            this.cargarEmpresa(this.empresaid);
                             break;
-                        case 'editpass':
-                            this.vista = 'editpass';
+                        case 'assign':
+                            this.vista = 'assign';
+                            this.cargarUsuariosDisponibles();
                             break;
                     }
                 },
@@ -611,40 +389,27 @@
                     }
                 },
                 // METODOS LISTADO
-                cargarUsuarios: function () {
+                cargarEmpresas: function () {
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
                     this.cargando = true;
-
                     const config = {
                         headers: { [csrfHeader]: csrfToken }
                     };
 
-                    //sthis.usuarios = [];
-                    axios.get('/api/v1/usuario/cargar', config)
+                    axios.get('/api/v1/empresa/cargar', config)
                         .then(response => {
-                            this.usuarios = response.data;
-                            //this.modalGeneral("Éxito", "Usuarios cargados correctamente", "text-success");
+                            this.empresas = response.data;
                         }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 204:
-                                        this.modalGeneral('Error', 'No se encontraron usuarios.', 'text-danger');
-                                        break;
-                                    default:
-                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
+                            console.error("Error cargando empresas:", error);
+                            this.modalGeneral('Error', 'No se pudieron cargar las empresas.', 'text-danger');
                         }).finally(() => {
                             this.cargando = false;
                         });
                 },
                 // METODOS CREAR
-                crearUsuario: function () {
+                crearEmpresa: function () {
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
@@ -652,167 +417,78 @@
                         headers: { [csrfHeader]: csrfToken }
                     };
 
-                    //this.usuario.tipoIdentidad = { id: this.usuario.tipoIdentidadId };
-                    this.usuario.roles = this.selectedRols.map(id => ({ id: id }));
                     const payload = {
-                        nombre: this.usuario.nombre,
-                        apellido: this.usuario.apellido,
-                        identidad: this.usuario.identidad,
-                        password: this.usuario.password,
-                        celular: this.usuario.celular,
-                        estado: this.usuario.estado,
-                        roles: this.selectedRols,
-                        tipoIdentidad: this.usuario.tipoIdentidad.id
+                        tipoIdentidadId: this.empresa.tipoIdentidadId,
+                        nombreCorto: this.empresa.nombreCorto,
+                        nombreLargo: this.empresa.nombreLargo,
+                        numIdentidad: this.empresa.numIdentidad,
+                        estado: this.empresa.estado
                     };
 
-                    axios.post('/api/v1/usuario/crear', payload, config)
+                    axios.post('/api/v1/empresa/crear', payload, config)
                         .then(response => {
-                            this.modalGeneral("Éxito", "Usuario creado correctamente", "text-success");
+                            this.modalGeneral("Éxito", "Empresa creada correctamente", "text-success");
                             this.cargarVista('list');
                         }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                if (error.response.status === 500) {
-                                    this.modalGeneral('Error', 'Ocurrió un error al crear el usuario.', 'text-danger');
-                                } else {
-                                    this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                                }
-                            }
-                        }).finally(() => {
-                            this.cargando = false;
+                            console.error("Error creando empresa:", error);
+                            this.modalGeneral('Error', 'Ocurrió un error al crear la empresa.', 'text-danger');
                         });
                 },
                 // METODOS EDITAR
-                seleccionarUsuario: function (id) {
-                    this.usuarioid = id;
+                seleccionarEmpresa: function (id) {
+                    this.empresaid = id;
                     this.cargarVista('edit');
                 },
-                cargarUsuario: function (id) {
+                cargarEmpresa: function (id) {
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
                     this.cargando = true;
-
                     const config = {
                         headers: { [csrfHeader]: csrfToken },
                     };
 
-                    this.usuario = {};
-                    axios.get(`/api/v1/usuario/buscar/${this.usuarioid}`, config)
+                    axios.get(`/api/v1/empresa/buscar/${id}`, config)
                         .then(response => {
-                            this.usuario = response.data;
-                            // Map roles to selectedRols IDs for checkboxes
-                            if (this.usuario.roles) {
-                                this.selectedRols = this.usuario.roles.map(rol => rol.id);
-                            } else {
-                                this.selectedRols = [];
-                            }
+                            this.empresa = response.data;
                         }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 204:
-                                        this.modalGeneral('Error', 'No se encontraron datos.', 'text-danger');
-                                        break;
-                                    default:
-                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
+                            console.error("Error cargando empresa:", error);
+                            this.modalGeneral('Error', 'No se pudieron cargar los datos de la empresa.', 'text-danger');
                         }).finally(() => {
                             this.cargando = false;
                         });
                 },
-                actualizarUsuario: function () {
+                actualizarEmpresa: function () {
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    this.cargando = true;
-
-                    const config = {
-                        headers: { [csrfHeader]: csrfToken }
-                    };
-
-                    this.usuario.roles = this.selectedRols.map(id => ({ id: id }));
-                    const payload = {
-                        nombre: this.usuario.nombre,
-                        apellido: this.usuario.apellido,
-                        identidad: this.usuario.identidad,
-                        celular: this.usuario.celular,
-                        estado: this.usuario.estado,
-                        roles: this.selectedRols,
-                        tipoIdentidad: this.usuario.tipoIdentidad.id
-                    };
-
-                    axios.put(`/api/v1/usuario/actualizar/${this.usuarioid}`, payload, config)
-                        .then(response => {
-                            this.modalGeneral("Éxito", "Usuario actualizado correctamente", "text-success");
-                            this.cargarVista('list');
-                        }).catch(error => {
-                            console.error("Error cargando usuarios:", error);
-                            if (error.response) {
-                                switch (error.response.status) {
-                                    case 204:
-                                        this.modalGeneral('Error', 'No se encontraron datos.', 'text-danger');
-                                        break;
-                                    default:
-                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
-                                }
-                            } else {
-                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
-                            }
-                        }).finally(() => {
-                            this.cargando = false;
-                        });
-                },
-                // METODOS CAMBIAR CONTRASEÑA
-                modificarpassUsuario: function (id) {
-                    this.usuarioid = id;
-                    this.cargarVista('editpass');
-                },
-                cambiarPassword: function () {
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-                    if (!this.newpassword || !this.confirmpassword) {
-                        this.modalGeneral('Advertencia', 'Uno o mas campos necesarios están en blanco.', 'text-warning');
-                        return;
-                    } else if (this.newpassword !== this.confirmpassword) {
-                        this.modalGeneral("Error", "Las contraseñas no coinciden", "text-danger");
-                        return;
-                    }
 
                     const config = {
                         headers: { [csrfHeader]: csrfToken }
                     };
 
                     const payload = {
-                        newPassword: this.newpassword
+                        tipoIdentidadId: this.empresa.tipoIdentidadId,
+                        nombreCorto: this.empresa.nombreCorto,
+                        nombreLargo: this.empresa.nombreLargo,
+                        numIdentidad: this.empresa.numIdentidad,
+                        estado: this.empresa.estado
                     };
 
-                    axios.put(`/api/v1/usuario/password/${this.usuarioid}`, payload, config)
+                    axios.put(`/api/v1/empresa/actualizar/${this.empresaid}`, payload, config)
                         .then(response => {
+                            this.modalGeneral("Éxito", "Empresa actualizada correctamente", "text-success");
                             this.cargarVista('list');
-                            this.modalGeneral("Éxito", "Contraseña actualizada correctamente", "text-success");
-                            this.newpassword = '';
-                            this.confirmpassword = '';
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            if (error.response && error.response.status === 401) {
-                                this.modalGeneral("Error", "La contraseña actual es incorrecta", "text-danger");
-                            } else {
-                                this.modalGeneral("Error", "No se pudo actualizar la contraseña", "text-danger");
-                            }
+                        }).catch(error => {
+                            console.error("Error actualizando empresa:", error);
+                            this.modalGeneral('Error', 'No se pudo actualizar la empresa.', 'text-danger');
                         });
                 },
                 // METODOS ELIMINAR
                 prepararEliminar: function (id) {
-                    this.usuarioid = id;
+                    this.empresaid = id;
                     this.mostrarModal('modalDelete');
                 },
-                eliminarUsuario: function () {
+                eliminarEmpresa: function () {
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
@@ -820,31 +496,74 @@
                         headers: { [csrfHeader]: csrfToken },
                     };
 
-                    axios.delete(`/api/v1/usuario/eliminar/${this.usuarioid}`, config)
+                    axios.delete(`/api/v1/empresa/eliminar/${this.empresaid}`, config)
                         .then(response => {
                             this.ocultarModal('modalDelete');
-                            this.modalGeneral("Éxito", "Usuario eliminado correctamente", "text-success");
+                            this.modalGeneral("Éxito", "Empresa eliminada correctamente", "text-success");
                             this.cargarVista('list');
                         })
                         .catch(error => {
                             console.error(error);
                             this.ocultarModal('modalDelete');
-                            this.modalGeneral("Error", "No se pudo eliminar el usuario", "text-danger");
+                            this.modalGeneral("Error", "No se pudo eliminar la empresa", "text-danger");
                         });
                 },
-                limpiarUsuario: function () {
-                    this.usuario = {
+                limpiarEmpresa: function () {
+                    this.empresa = {
                         id: null,
-                        tipoIdentidad: { id: null },
-                        nombreUsuario: '',
-                        apellidoUsuario: '',
-                        identidadUsuario: '',
-                        passwordUsuario: '',
-                        celularUsuario: '',
-                        estado: 1,
-                        roles: []
+                        tipoIdentidadId: null,
+                        nombreCorto: '',
+                        nombreLargo: '',
+                        numIdentidad: '',
+                        estado: 1
                     };
-                    this.selectedRols = [];
+                },
+                // METODOS ASIGNACIÓN
+                modificarUsuarios: function (id) {
+                    this.empresaid = id;
+                    // Pre-cargar la empresa para mostrar el nombre
+                    this.cargarEmpresa(id);
+                    this.cargarVista('assign');
+                },
+                cargarUsuariosDisponibles: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    this.cargando = true;
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+
+                    axios.get('/api/v1/usuario/cargar', config)
+                        .then(response => {
+                            this.usuariosDisponibles = response.data;
+                            // En una implementación real, aquí se marcarían los usuarios ya asignados
+                        }).catch(error => {
+                            console.error("Error cargando usuarios:", error);
+                        }).finally(() => {
+                            this.cargando = false;
+                        });
+                },
+                asignarUsuarios: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+
+                    const payload = {
+                        userIds: this.selectedUserIds
+                    };
+
+                    axios.put(`/api/v1/empresa//asignar-usuarios/${this.empresaid}`, payload, config)
+                        .then(response => {
+                            this.modalGeneral("Éxito", "Usuarios asignados correctamente", "text-success");
+                            this.cargarVista('list');
+                        }).catch(error => {
+                            console.error("Error asignando usuarios:", error);
+                            this.modalGeneral('Error', 'No se pudieron asignar los usuarios.', 'text-danger');
+                        });
                 },
             },
             mounted() {

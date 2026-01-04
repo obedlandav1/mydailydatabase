@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.conetdev.mydailydatabase.api.v1.UserController;
-import com.conetdev.mydailydatabase.dto.UsuarioRequest;
+import com.conetdev.mydailydatabase.api.v1.UsuarioController;
 import com.conetdev.mydailydatabase.model.Usuario;
 import com.conetdev.mydailydatabase.mapper.UsuarioMapper;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
+import com.conetdev.mydailydatabase.request.UsuarioRequest;
 import com.conetdev.mydailydatabase.service.UsuarioService;
 import com.conetdev.mydailydatabase.utils.PasswordUtils;
 import com.conetdev.mydailydatabase.response.UsuarioResponse;
@@ -34,7 +34,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     PasswordUtils passutil;
 
-    private String class_name = UserController.class.getName();
+    private String class_name = UsuarioController.class.getName();
 
     @Override
     public ResponseEntity<List<UsuarioResponse>> findAll() {

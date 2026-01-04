@@ -4,38 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmpresaResponse {
-    /** Identificador del usuario. */
     private Long id;
-    private String nombre;
-    private String apellido;
-    private String identidad;
-    private String celular;
-    private int estado;
-    /** Roles del usuario (many‑to‑many). */
-    private Set<RoleDto> roles;
-    /** Tipo de identidad (many‑to‑one). */
+    private String nombreCorto;
+    private String nombreLargo;
+    private String numIdentidad;
+    private Integer estado;
     private TipoIdentidadDto tipoIdentidad;
-
-    /*
-     * -------------------------------------------------------------
-     * Sub‑DTOs internos: RoleDto y TipoIdentidadDto
-     * -------------------------------------------------------------
-     */
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RoleDto {
-        private Long id;
-        private String nombreLargo;
-    }
 
     @Getter
     @Setter

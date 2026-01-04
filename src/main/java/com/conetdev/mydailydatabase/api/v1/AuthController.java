@@ -14,7 +14,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.*;
 
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
-import com.conetdev.mydailydatabase.dto.LoginRequest;
+import com.conetdev.mydailydatabase.request.LoginRequest;
 import com.conetdev.mydailydatabase.model.Usuario;
 
 import java.util.HashMap;

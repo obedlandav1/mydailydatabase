@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.conetdev.mydailydatabase.dto.UsuarioRequest;
+import com.conetdev.mydailydatabase.request.UsuarioRequest;
 import com.conetdev.mydailydatabase.response.UsuarioResponse;
 
 public interface UsuarioService {

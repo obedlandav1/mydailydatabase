@@ -7,6 +7,5 @@ import com.conetdev.mydailydatabase.model.RazonSocial;
 
 @Repository
 public interface RazonSocialRepository extends JpaRepository<RazonSocial, Long> {
-    // Ejemplo: Buscar por RUC/Num Identidad
-    // Optional<RazonSocial> findByNumIdentidad(String numIdentidad);
+    // Additional query methods can be defined here if needed
 }
