@@ -1,0 +1,168 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/assistants}">
+
+<body>
+    <!-- Content -->
+    <div layout:fragment="content">
+        <!-- Dinamic content -->
+        <!-- Home -->
+        <div class="container-xxl flex-grow-1 container-p-y flex-grow-1 pt-2">
+            <div class="row">
+                <div class="col-lg-6 mb-4 order-0">
+                    <div class="card welcome-card">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="col-sm-7">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Bienvenido {{ nomusuario }}! 🎉
+                                    </h5>
+                                    <p class="mb-4">
+                                        Automatiza la gestión de tus empresas. Olvídate del papeleo
+                                        manual y procesos manuales. En MyDailyDatabase se adapta
+                                        a todos tus procesos.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-sm-5 text-center">
+                                <div class="card-body px-0 px-md-4">
+                                    <img src="img/img-home-512.png" height="150" alt="View Badge User" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Cargando -->
+            <div v-if="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando sesion...</p>
+            </div>
+        </div>
+        <!-- /Home -->
+
+    </div>
+    <!-- / Content -->
+
+    <!-- vue.js -->
+    <script layout:fragment="script">
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // VARIABLES SESION
+                    userSession: {
+                        username: '',
+                        fullName: '',
+                        roleId: '',
+                        roleName: ''
+                    },
+                    // VARIABLES GENERALES
+                    vista: '',
+                    modalTitulo: '',
+                    modalMensaje: '',
+                    modalTipo: '',
+                    cargando: true,
+                    error: null,
+                }
+            },
+            methods: {
+                // METODOS SESION
+                cargarSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    axios.get('/api/v1/auth/current-user', config)
+                        .then(response => {
+                            this.userSession = response.data;
+                            this.cargando = false;
+                        })
+                        .catch(error => {
+                            console.error("Error al verificar sesión:", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 401:
+                                        this.modalError('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 403:
+                                        this.modalError('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalError('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                salirSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    this.ocultarModal('modalLogout');
+                    axios.post('/api/v1/auth/logout', {}, config)
+                        .then(() => {
+                            localStorage.clear();
+                            this.userSession = {
+                                username: '',
+                                fullName: '',
+                                roleId: '',
+                                roleName: ''
+                            };
+                            this.modalGeneral('Sesión cerrada', 'Sesión cerrada, vuelva a iniciar sesión.', 'text-success');
+                            setTimeout(() => {
+                                window.location.href = "/login";
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al cerrar sesión:", error);
+                            if (error.response) {
+                                this.modalError('Error', 'Error al cerrar sesión, recargue la página.', 'text-danger');
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                // METODOS GENERALES
+                modalError(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalError');
+                },
+                modalGeneral(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalGeneral');
+                },
+                mostrarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(elemento);
+                        modal.show();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                ocultarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getInstance(elemento);
+                        if (modal) modal.hide();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+            },
+            mounted() {
+                this.cargarSesion();
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

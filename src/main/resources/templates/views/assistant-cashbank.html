@@ -1,0 +1,216 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/assistants}">
+
+<body>
+    <!-- Content -->
+    <div layout:fragment="content">
+        <!-- Dynamic content -->
+        <div class="container-xxl flex-grow-1 container-p-y pt-2" id="app" v-cloak>
+            <!-- Encabezado -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Registro /</span> Caja y Bancos
+                </h4>
+                </div>
+            </div>
+
+            <!-- Contenedor principal -->
+            <div class="row mt-4">
+                <!-- Card 1: Saldos -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-3">
+                                <i class="bx bx-wallet me-2"></i>Saldos
+                            </h6>
+                            <p class="text-muted small">Consulta el saldo de tus cuentas bancarias y caja</p>
+                            <button class="btn btn-primary btn-sm" @click="irACajaBancoDetalle('saldos')">
+                                Ver saldos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Movimientos -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-3">
+                                <i class="bx bx-shuffle me-2"></i>Movimientos
+                            </h6>
+                            <p class="text-muted small">Registra y consulta movimientos de entrada y salida</p>
+                            <button class="btn btn-primary btn-sm" @click="irACajaBancoDetalle('movimientos')">
+                                Ver movimientos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Depósitos -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-3">
+                                <i class="bx bx-plus-circle me-2"></i>Depósitos
+                            </h6>
+                            <p class="text-muted small">Registra depósitos bancarios y movimientos de entrada</p>
+                            <button class="btn btn-primary btn-sm" @click="irACajaBancoDetalle('depositos')">
+                                Registrar depósito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Retiros -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-3">
+                                <i class="bx bx-minus-circle me-2"></i>Retiros
+                            </h6>
+                            <p class="text-muted small">Registra retiros y movimientos de salida</p>
+                            <button class="btn btn-primary btn-sm" @click="irACajaBancoDetalle('retiros')">
+                                Registrar retiro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cargando -->
+            <div v-if="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando datos...</p>
+            </div>
+        </div>
+
+    </div>
+    <!-- / Content -->
+
+    <!-- vue.js -->
+    <script layout:fragment="script">
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // VARIABLES SESION
+                    userSession: {
+                        username: '',
+                        fullName: '',
+                        roleId: '',
+                        roleName: ''
+                    },
+                    // VARIABLES GENERALES
+                    vista: '',
+                    modalTitulo: '',
+                    modalMensaje: '',
+                    modalTipo: '',
+                    cargando: false,
+                    error: null,
+                }
+            },
+            methods: {
+                // METODOS SESION
+                cargarSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    axios.get('/api/v1/auth/current-user', config)
+                        .then(response => {
+                            this.userSession = response.data;
+                        })
+                        .catch(error => {
+                            console.error("Error al verificar sesión:", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 401:
+                                        this.modalError('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 403:
+                                        this.modalError('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalError('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                salirSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    this.ocultarModal('modalLogout');
+                    axios.post('/api/v1/auth/logout', {}, config)
+                        .then(() => {
+                            localStorage.clear();
+                            this.userSession = {
+                                username: '',
+                                fullName: '',
+                                roleId: '',
+                                roleName: ''
+                            };
+                            this.modalGeneral('Sesión cerrada', 'Sesión cerrada, vuelva a iniciar sesión.', 'text-success');
+                            setTimeout(() => {
+                                window.location.href = "/login";
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al cerrar sesión:", error);
+                            if (error.response) {
+                                this.modalError('Error', 'Error al cerrar sesión, recargue la página.', 'text-danger');
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                // METODOS GENERALES
+                modalError(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalError');
+                },
+                modalGeneral(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalGeneral');
+                },
+                mostrarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(elemento);
+                        modal.show();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                ocultarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getInstance(elemento);
+                        if (modal) modal.hide();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                // METODOS CAJA Y BANCO
+                irACajaBancoDetalle(tipo) {
+                    this.modalGeneral('Información', 'Funcionalidad de ' + tipo + ' en desarrollo.', 'text-info');
+                }
+            },
+            mounted() {
+                this.cargarSesion();
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

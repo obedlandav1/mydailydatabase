@@ -1,0 +1,52 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en" class="light-style layout-menu-fixed" dir="ltr"
+    data-theme="theme-default" data-assets-path="" data-template="vertical-menu-template-free">
+
+<head th:replace="~{fragments/head :: layout-head('Bienvenido')}"></head>
+
+<body id="app" v-cloak>
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/sidebar :: assistant}"></div>
+    <!-- / Sidebar -->
+
+    <div class="layout-page">
+
+        <!-- Navbar -->
+        <div th:replace="~{fragments/navbar :: assistant}"></div>
+        <!-- / Navbar -->
+
+        <div class="content-wrapper">
+
+            <!-- Content -->
+            <div layout:fragment="content">
+
+            </div>
+            <!-- / Content -->
+
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{fragments/footer :: footer}"></div>
+        <!-- / Footer -->
+
+        <!-- General -->
+        <div th:replace="~{fragments/modals :: general}"></div>
+        <!-- / General -->
+
+        <!-- Error -->
+        <div th:replace="~{fragments/modals :: error}"></div>
+        <!-- / Error -->
+
+        <!-- Delete -->
+        <div th:replace="~{fragments/modals :: delete}"></div>
+        <!-- / Delete -->
+
+        <!-- Logout -->
+        <div th:replace="~{fragments/modals :: logout}"></div>
+        <!-- / Logout -->
+
+    </div>
+    <script layout:fragment="script">
+    </script>
+</body>
+
+</html>
