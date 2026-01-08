@@ -37,11 +37,11 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     private String className = MovimientoServiceImpl.class.getName();
 
-    // Columnas esperadas en el Excel
+    // Columnas esperadas en el Excel (sin ID Cuenta ni Estado)
     private static final String[] COLUMNAS_PLANTILLA = {
             "Fecha Emisión", "Fecha Operación", "Período", "Número Operación",
             "Descripción", "Beneficiario", "Glosa", "Monto 1", "Tipo Cambio", "Monto 2",
-            "ID Cuenta", "ID Tipo Operación", "Estado"
+            "ID Tipo Operación"
     };
 
     @Override
@@ -112,13 +112,15 @@ public class MovimientoServiceImpl implements MovimientoService {
                     movimiento.put("montoOperacion1", getCellAsDecimal(row.getCell(7)));
                     movimiento.put("tipoCambio", getCellAsDecimal(row.getCell(8)));
                     movimiento.put("montoOperacion2", getCellAsDecimal(row.getCell(9)));
-                    movimiento.put("cuentasId", getCellAsLong(row.getCell(10)));
-                    movimiento.put("tipoOperacionId", getCellAsLong(row.getCell(11)));
-                    movimiento.put("estado", getCellAsInteger(row.getCell(12), 1));
+                    movimiento.put("tipoOperacionId", getCellAsLong(row.getCell(10)));
+                    // cuentasId se asignará desde el frontend
+                    movimiento.put("cuentasId", null);
+                    // Estado siempre será 1 (activo)
+                    movimiento.put("estado", 1);
 
                     // Validación básica
-                    if (movimiento.get("fechaEmision") == null || movimiento.get("cuentasId") == null) {
-                        errores.add("Fila " + (rowNum + 1) + ": Falta fecha emisión o ID cuenta");
+                    if (movimiento.get("fechaEmision") == null) {
+                        errores.add("Fila " + (rowNum + 1) + ": Falta fecha emisión");
                         continue;
                     }
 

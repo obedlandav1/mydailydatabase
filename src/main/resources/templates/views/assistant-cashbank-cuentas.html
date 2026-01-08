@@ -1,0 +1,342 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/assistants}">
+
+<body>
+    <!-- Content -->
+    <div layout:fragment="content">
+        <!-- Dynamic content -->
+        <div class="container-xxl flex-grow-1 container-p-y pt-2" id="app" v-cloak>
+            <!-- Encabezado -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Caja y Bancos /</span> Cuentas</h4>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-success" @click="abrirModalCuenta">
+                        <i class="bx bx-plus me-2"></i>Nueva Cuenta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista Lista de Cuentas -->
+            <div v-if="vista === 'lista'" class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Cuentas Bancarias y de Caja</h5>
+                        </div>
+                        <div class="card-body">
+                            <div v-if="cargando" class="text-center">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted">Cargando datos...</p>
+                            </div>
+                            <div v-else-if="cuentas.length === 0" class="alert alert-info">
+                                No hay cuentas registradas.
+                            </div>
+                            <div v-else>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>Tipo</th>
+                                                <th>Número</th>
+                                                <th>Banco</th>
+                                                <th>Moneda</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="c in cuentas" :key="c.id">
+                                                <td>{{ c.id }}</td>
+                                                <td>{{ c.nombre }}</td>
+                                                <td>{{ c.tipo }}</td>
+                                                <td>{{ c.numero }}</td>
+                                                <td>{{ c.banco }}</td>
+                                                <td>{{ c.moneda }}</td>
+                                                <td>
+                                                    <span v-if="c.estado === 1" class="badge bg-success">Activo</span>
+                                                    <span v-else-if="c.estado === 2" class="badge bg-warning">Suspendido</span>
+                                                    <span v-else class="badge bg-danger">Inactivo</span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" @click="editarCuenta(c)">
+                                                        <i class="bx bx-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" @click="eliminarCuenta(c.id)">
+                                                        <i class="bx bx-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Cuenta -->
+            <div class="modal fade" id="modalCuenta" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ modoEdicion ? 'Editar' : 'Nueva' }} Cuenta</h5>
+                            <button type="button" class="btn-close" @click="cerrarModalCuenta"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form @submit.prevent="guardarCuenta">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" v-model="formCuenta.nombre" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo *</label>
+                                    <select class="form-select" v-model="formCuenta.tipo" required>
+                                        <option value="">Selecciona tipo</option>
+                                        <option value="Cuenta Corriente">Cuenta Corriente</option>
+                                        <option value="Cuenta de Ahorros">Cuenta de Ahorros</option>
+                                        <option value="Caja">Caja</option>
+                                        <option value="Otra">Otra</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Número de Cuenta</label>
+                                    <input type="text" class="form-control" v-model="formCuenta.numero" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Banco</label>
+                                    <input type="text" class="form-control" v-model="formCuenta.banco" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Moneda *</label>
+                                    <select class="form-select" v-model="formCuenta.moneda" required>
+                                        <option value="">Selecciona moneda</option>
+                                        <option value="USD">USD</option>
+                                        <option value="PEN">PEN</option>
+                                        <option value="EUR">EUR</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @click="cerrarModalCuenta">Cancelar</button>
+                            <button type="button" class="btn btn-primary" @click="guardarCuenta" :disabled="guardando">
+                                <span v-if="guardando" class="spinner-border spinner-border-sm me-2"></span>
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cargando general -->
+            <div v-if="cargandoGeneral" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Procesando...</p>
+            </div>
+        </div>
+
+    </div>
+    <!-- / Content -->
+
+    <!-- vue.js -->
+    <script layout:fragment="script">
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // VARIABLES SESION
+                    userSession: {
+                        username: '',
+                        fullName: '',
+                        roleId: '',
+                        roleName: ''
+                    },
+                    // VARIABLES CUENTAS
+                    cuentas: [],
+                    vista: 'lista',
+                    cargando: false,
+                    cargandoGeneral: false,
+                    modoEdicion: false,
+                    guardando: false,
+                    formCuenta: {
+                        id: null,
+                        nombre: '',
+                        tipo: '',
+                        numero: '',
+                        banco: '',
+                        moneda: '',
+                        estado: 1
+                    },
+                    // VARIABLES GENERALES
+                    modalTitulo: '',
+                    modalMensaje: '',
+                    modalTipo: '',
+                }
+            },
+            methods: {
+                // METODOS SESION
+                cargarSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    axios.get('/api/v1/auth/current-user', config)
+                        .then(response => {
+                            this.userSession = response.data;
+                        })
+                        .catch(error => {
+                            console.error("Error al verificar sesión:", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 401:
+                                        this.modalError('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 403:
+                                        this.modalError('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalError('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                salirSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    this.ocultarModal('modalLogout');
+                    axios.post('/api/v1/auth/logout', {}, config)
+                        .then(() => {
+                            localStorage.clear();
+                            this.userSession = {
+                                username: '',
+                                fullName: '',
+                                roleId: '',
+                                roleName: ''
+                            };
+                            this.modalGeneral('Sesión cerrada', 'Sesión cerrada, vuelva a iniciar sesión.', 'text-success');
+                            setTimeout(() => {
+                                window.location.href = "/login";
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al cerrar sesión:", error);
+                            if (error.response) {
+                                this.modalError('Error', 'Error al cerrar sesión, recargue la página.', 'text-danger');
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                // METODOS CUENTAS
+                cargarCuentas() {
+                    this.cargando = true;
+                    // Simulado - En producción llamarías a tu API
+                    setTimeout(() => {
+                        this.cuentas = [];
+                        this.cargando = false;
+                    }, 500);
+                },
+                abrirModalCuenta() {
+                    this.modoEdicion = false;
+                    this.formCuenta = {
+                        id: null,
+                        nombre: '',
+                        tipo: '',
+                        numero: '',
+                        banco: '',
+                        moneda: '',
+                        estado: 1
+                    };
+                    this.mostrarModal('modalCuenta');
+                },
+                cerrarModalCuenta() {
+                    this.ocultarModal('modalCuenta');
+                    this.formCuenta = {
+                        id: null,
+                        nombre: '',
+                        tipo: '',
+                        numero: '',
+                        banco: '',
+                        moneda: '',
+                        estado: 1
+                    };
+                },
+                editarCuenta(cuenta) {
+                    this.modoEdicion = true;
+                    this.formCuenta = { ...cuenta };
+                    this.mostrarModal('modalCuenta');
+                },
+                guardarCuenta() {
+                    if (!this.formCuenta.nombre || !this.formCuenta.tipo || !this.formCuenta.moneda) {
+                        this.modalGeneral('Validación', 'Completa los campos obligatorios', 'text-warning');
+                        return;
+                    }
+                    this.guardando = true;
+                    // Simulado - En producción llamarías a tu API
+                    setTimeout(() => {
+                        this.modalGeneral('Éxito', 'Cuenta guardada correctamente', 'text-success');
+                        this.cerrarModalCuenta();
+                        this.cargarCuentas();
+                        this.guardando = false;
+                    }, 500);
+                },
+                eliminarCuenta(id) {
+                    if (confirm('¿Estás seguro de eliminar esta cuenta?')) {
+                        // Simulado - En producción llamarías a tu API
+                        this.modalGeneral('Éxito', 'Cuenta eliminada correctamente', 'text-success');
+                        this.cargarCuentas();
+                    }
+                },
+                // METODOS GENERALES
+                modalError(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalError');
+                },
+                modalGeneral(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalGeneral');
+                },
+                mostrarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(elemento);
+                        modal.show();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                ocultarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getInstance(elemento);
+                        if (modal) modal.hide();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+            },
+            mounted() {
+                this.cargarSesion();
+                this.cargarCuentas();
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

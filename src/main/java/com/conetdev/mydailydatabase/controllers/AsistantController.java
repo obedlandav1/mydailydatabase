@@ -20,6 +20,12 @@ public class AsistantController {
     }
 
     @Autowired
+    @RequestMapping("/asistant/cashbank/cuentas")
+    public String cuentas() {
+        return "views/assistant-cashbank-cuentas";
+    }
+
+    @Autowired
     @RequestMapping("/asistant/cashbank/saldos")
     public String saldos() {
         return "views/assistant-cashbank-saldos";

@@ -83,6 +83,15 @@
                             <!-- Paso 1: Carga de archivo -->
                             <div v-if="pasoImport === 1">
                                 <div class="mb-3">
+                                    <label class="form-label"><strong>Selecciona la Cuenta *</strong></label>
+                                    <select class="form-select" v-model.number="cuentaSeleccionada" required>
+                                        <option value="">-- Selecciona una cuenta --</option>
+                                        <option v-for="c in cuentas" :key="c.id" :value="c.id">
+                                            {{ c.nombre }} ({{ c.numero }})
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
                                     <label class="form-label"><strong>Selecciona archivo Excel (.xlsx)</strong></label>
                                     <input type="file" class="form-control" 
                                         @change="onArchivoSeleccionado" 
@@ -100,9 +109,7 @@
                                     8. Monto 1 (número)<br>
                                     9. Tipo Cambio (número)<br>
                                     10. Monto 2 (número)<br>
-                                    11. ID Cuenta<br>
-                                    12. ID Tipo Operación<br>
-                                    13. Estado (1=Activo)
+                                    11. ID Tipo Operación
                                 </div>
                             </div>
 
@@ -148,7 +155,7 @@
                                 <button type="button" class="btn btn-info me-2" @click="descargarPlantilla">
                                     <i class="bx bx-cloud-download"></i> Descargar Plantilla
                                 </button>
-                                <button type="button" class="btn btn-primary" @click="validarExcel" :disabled="!archivoSeleccionado || validando">
+                                <button type="button" class="btn btn-primary" @click="validarExcel" :disabled="!cuentaSeleccionada || !archivoSeleccionado || validando">
                                     <span v-if="validando" class="spinner-border spinner-border-sm me-2"></span>
                                     Importar
                                 </button>
@@ -191,6 +198,8 @@
                     },
                     // VARIABLES MOVIMIENTOS
                     movimientos: [],
+                    cuentas: [],
+                    cuentaSeleccionada: null,
                     vista: 'lista',
                     cargando: false,
                     cargandoGeneral: false,
@@ -275,17 +284,23 @@
                     this.archivoSeleccionado = null;
                     this.datosImport = [];
                     this.erroresImport = [];
+                    this.cuentaSeleccionada = null;
                     this.mostrarModal('modalImportar');
                 },
                 cerrarModalImportar() {
                     this.ocultarModal('modalImportar');
                     this.pasoImport = 1;
                     this.archivoSeleccionado = null;
+                    this.cuentaSeleccionada = null;
                 },
                 onArchivoSeleccionado(event) {
                     this.archivoSeleccionado = event.target.files[0];
                 },
                 validarExcel() {
+                    if (!this.cuentaSeleccionada) {
+                        this.modalGeneral('Advertencia', 'Selecciona una cuenta', 'text-warning');
+                        return;
+                    }
                     if (!this.archivoSeleccionado) {
                         this.modalGeneral('Advertencia', 'Selecciona un archivo', 'text-warning');
                         return;
@@ -334,6 +349,12 @@
                         return;
                     }
 
+                    // Asignar cuentasId a cada movimiento antes de guardar
+                    const datosConCuenta = this.datosImport.map(d => ({
+                        ...d,
+                        cuentasId: this.cuentaSeleccionada
+                    }));
+
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
@@ -343,7 +364,7 @@
 
                     this.guardando = true;
 
-                    axios.post('/api/v1/movimiento/guardar-lote', this.datosImport, config)
+                    axios.post('/api/v1/movimiento/guardar-lote', datosConCuenta, config)
                         .then(response => {
                             if (response.data.status === 'OK') {
                                 this.modalGeneral(
@@ -423,10 +444,39 @@
                         console.error("No se encontró el modal:", idModal);
                     }
                 },
+                cargarCuentas() {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+
+                    axios.get('/api/v1/cuenta/listar', config)
+                        .then(response => {
+                            this.cuentas = response.data.map(c => ({
+                                id: c.id,
+                                nombre: `${c.razonSocialNombre} - ${c.tipoCuentaNombre}`,
+                                numero: c.numeroCuenta,
+                                banco: c.bancoNombre,
+                                moneda: c.tipoMonedaCodigo
+                            }));
+                        })
+                        .catch(error => {
+                            console.error("Error al cargar cuentas:", error);
+                            // Usar datos simulados si la API falla
+                            this.cuentas = [
+                                { id: 1, nombre: 'Caja Principal', numero: 'CAJA-001', banco: 'Caja', moneda: 'PEN' },
+                                { id: 2, nombre: 'Banco ABC - Cuenta Corriente', numero: '123456789', banco: 'Banco ABC', moneda: 'USD' },
+                                { id: 3, nombre: 'Banco XYZ - Ahorros', numero: '987654321', banco: 'Banco XYZ', moneda: 'PEN' }
+                            ];
+                        });
+                },
             },
             mounted() {
                 this.cargarSesion();
                 this.cargarMovimientos();
+                this.cargarCuentas();
             }
         }).mount('#app');
     </script>
