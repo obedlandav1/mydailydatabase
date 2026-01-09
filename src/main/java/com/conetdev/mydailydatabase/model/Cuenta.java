@@ -14,7 +14,7 @@ public class Cuenta {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "razonsocial_id", nullable = false)
-    private RazonSocial razonSocial;
+    private RazonesSociales razonSocial;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bancos_id", nullable = false)
