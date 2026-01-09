@@ -1,0 +1,159 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/assistants}">
+
+<body>
+    <!-- Content -->
+    <div layout:fragment="content">
+        <!-- Dynamic content -->
+        <div class="container-xxl flex-grow-1 container-p-y pt-2" id="app" v-cloak>
+            <!-- Encabezado -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="fw-bold py-0 mb-0"><span class="text-muted fw-light">Caja y Bancos /</span> Saldos</h4>
+                </div>
+            </div>
+
+            <!-- Contenido principal -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="text-muted">Sección de Saldos en desarrollo...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cargando -->
+            <div v-if="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando datos...</p>
+            </div>
+        </div>
+
+    </div>
+    <!-- / Content -->
+
+    <!-- vue.js -->
+    <script layout:fragment="script">
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // VARIABLES SESION
+                    userSession: {
+                        username: '',
+                        fullName: '',
+                        roleId: '',
+                        roleName: ''
+                    },
+                    // VARIABLES GENERALES
+                    vista: '',
+                    modalTitulo: '',
+                    modalMensaje: '',
+                    modalTipo: '',
+                    cargando: false,
+                    error: null,
+                }
+            },
+            methods: {
+                // METODOS SESION
+                cargarSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    axios.get('/api/v1/auth/current-user', config)
+                        .then(response => {
+                            this.userSession = response.data;
+                        })
+                        .catch(error => {
+                            console.error("Error al verificar sesión:", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 401:
+                                        this.modalError('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 403:
+                                        this.modalError('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalError('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                salirSesion: function () {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+                    this.ocultarModal('modalLogout');
+                    axios.post('/api/v1/auth/logout', {}, config)
+                        .then(() => {
+                            localStorage.clear();
+                            this.userSession = {
+                                username: '',
+                                fullName: '',
+                                roleId: '',
+                                roleName: ''
+                            };
+                            this.modalGeneral('Sesión cerrada', 'Sesión cerrada, vuelva a iniciar sesión.', 'text-success');
+                            setTimeout(() => {
+                                window.location.href = "/login";
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al cerrar sesión:", error);
+                            if (error.response) {
+                                this.modalError('Error', 'Error al cerrar sesión, recargue la página.', 'text-danger');
+                            } else {
+                                this.modalError('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                // METODOS GENERALES
+                modalError(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalError');
+                },
+                modalGeneral(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalGeneral');
+                },
+                mostrarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(elemento);
+                        modal.show();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+                ocultarModal(idModal) {
+                    const elemento = document.getElementById(idModal);
+                    if (elemento) {
+                        const modal = bootstrap.Modal.getInstance(elemento);
+                        if (modal) modal.hide();
+                    } else {
+                        console.error("No se encontró el modal:", idModal);
+                    }
+                },
+            },
+            mounted() {
+                this.cargarSesion();
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
