@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.conetdev.mydailydatabase.mapper.EmpresaMapper;
-import com.conetdev.mydailydatabase.model.RazonSocial;
-import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.model.RazonesSociales;
+import com.conetdev.mydailydatabase.model.Usuarios;
 import com.conetdev.mydailydatabase.repository.RazonSocialRepository;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
 import com.conetdev.mydailydatabase.request.AssignUsersRequest;
@@ -37,10 +37,10 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     public ResponseEntity<List<EmpresaResponse>> findAll() {
         try {
-            List<RazonSocial> lista = razonSocialRepository.findAll();
+            List<RazonesSociales> lista = razonSocialRepository.findAll();
             List<EmpresaResponse> response = new ArrayList<>();
 
-            for (RazonSocial empresa : lista) {
+            for (RazonesSociales empresa : lista) {
                 response.add(empresaMapper.toEmpresaResponse(empresa));
             }
 
@@ -59,7 +59,7 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     public ResponseEntity<EmpresaResponse> findById(Long id) {
         try {
-            RazonSocial entity = razonSocialRepository.findById(id).orElse(null);
+            RazonesSociales entity = razonSocialRepository.findById(id).orElse(null);
             if (entity == null) {
                 Logger.getLogger(className).log(Level.INFO, "HttpStatus: NO_CONTENT, Empresa not found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -76,7 +76,7 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     public ResponseEntity<HttpStatus> save(EmpresaRequest request) {
         try {
-            RazonSocial entity = empresaMapper.toEmpresaEntity(request);
+            RazonesSociales entity = empresaMapper.toEmpresaEntity(request);
             razonSocialRepository.save(entity);
             Logger.getLogger(className).log(Level.INFO, "HttpStatus: CREATED, Empresa saved");
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -89,7 +89,7 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     public ResponseEntity<HttpStatus> update(Long id, EmpresaRequest request) {
         try {
-            RazonSocial entity = razonSocialRepository.findById(id).orElse(null);
+            RazonesSociales entity = razonSocialRepository.findById(id).orElse(null);
             if (entity == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -118,11 +118,11 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     public ResponseEntity<HttpStatus> assignUsers(Long id, AssignUsersRequest request) {
         try {
-            RazonSocial empresa = razonSocialRepository.findById(id).orElse(null);
+            RazonesSociales empresa = razonSocialRepository.findById(id).orElse(null);
             if (empresa == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            List<Usuario> usuarios = usuarioRepository.findAllById(request.getUserIds());
+            List<Usuarios> usuarios = usuarioRepository.findAllById(request.getUserIds());
             empresa.setUsuarios(usuarios);
             razonSocialRepository.save(empresa);
             Logger.getLogger(className).log(Level.INFO, "HttpStatus: OK, Users assigned to Empresa");

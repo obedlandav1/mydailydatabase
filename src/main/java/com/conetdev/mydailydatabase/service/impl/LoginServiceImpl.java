@@ -1,6 +1,6 @@
 package com.conetdev.mydailydatabase.service.impl;
 
-import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.model.Usuarios;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +19,7 @@ public class LoginServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByIdentidadUsuario(username)
+        Usuarios usuario = usuarioRepository.findByIdentidadUsuario(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return org.springframework.security.core.userdetails.User.builder()
                 .username(usuario.getIdentidadUsuario())

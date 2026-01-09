@@ -4,28 +4,28 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.conetdev.mydailydatabase.model.RazonSocial;
-import com.conetdev.mydailydatabase.model.TipoIdentidad;
+import com.conetdev.mydailydatabase.model.RazonesSociales;
+import com.conetdev.mydailydatabase.model.TipoIdentidades;
 import com.conetdev.mydailydatabase.request.EmpresaRequest;
 import com.conetdev.mydailydatabase.response.EmpresaResponse;
 
 @Mapper(componentModel = "spring")
 public interface EmpresaMapper {
-    EmpresaResponse toEmpresaResponse(RazonSocial entity);
+    EmpresaResponse toEmpresaResponse(RazonesSociales entity);
 
-    EmpresaResponse.TipoIdentidadDto toEmpresaResponseTipoIdentidad(TipoIdentidad tipo);
-
-    @Mapping(source = "tipoIdentidadId", target = "tipoIdentidad")
-    RazonSocial toEmpresaEntity(EmpresaRequest dto);
+    EmpresaResponse.TipoIdentidadDto toEmpresaResponseTipoIdentidad(TipoIdentidades tipo);
 
     @Mapping(source = "tipoIdentidadId", target = "tipoIdentidad")
-    void toEmpresaEntity(EmpresaRequest dto, @MappingTarget RazonSocial entity);
+    RazonesSociales toEmpresaEntity(EmpresaRequest dto);
 
-    default TipoIdentidad toTipoIdentidad(Long id) {
+    @Mapping(source = "tipoIdentidadId", target = "tipoIdentidad")
+    void toEmpresaEntity(EmpresaRequest dto, @MappingTarget RazonesSociales entity);
+
+    default TipoIdentidades toTipoIdentidad(Long id) {
         if (id == null) {
             return null;
         }
-        TipoIdentidad ti = new TipoIdentidad();
+        TipoIdentidades ti = new TipoIdentidades();
         ti.setId(id);
         return ti;
     }

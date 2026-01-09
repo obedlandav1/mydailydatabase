@@ -20,4 +20,5 @@ public class PasswordUtils {
     public boolean matches(String rawPassword, String storedHash) {
         return passwordEncoder.matches(rawPassword, storedHash);
     }
+
 }

@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.conetdev.mydailydatabase.api.v1.UsuarioController;
-import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.model.Usuarios;
 import com.conetdev.mydailydatabase.mapper.UsuarioMapper;
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
 import com.conetdev.mydailydatabase.request.UsuarioRequest;
@@ -40,10 +40,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     public ResponseEntity<List<UsuarioResponse>> findAll() {
 
         try {
-            List<Usuario> lista = usuarioRepository.findAll();
+            List<Usuarios> lista = usuarioRepository.findAll();
             List<UsuarioResponse> response = new ArrayList<>();
 
-            for (Usuario usuario : lista) {
+            for (Usuarios usuario : lista) {
                 response.add(usuarioMapper.toUsuarioResponse(usuario));
             }
 
@@ -67,7 +67,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public ResponseEntity<UsuarioResponse> findById(Long id) {
 
         try {
-            Optional<Usuario> usuario = usuarioRepository.findById(id);
+            Optional<Usuarios> usuario = usuarioRepository.findById(id);
             UsuarioResponse response = new UsuarioResponse();
 
             response = usuarioMapper.toUsuarioResponse(usuario.get());
@@ -91,7 +91,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public ResponseEntity<HttpStatus> save(UsuarioRequest dto) {
         try {
-            Usuario usuario = new Usuario();
+            Usuarios usuario = new Usuarios();
 
             usuarioMapper.toUsuarioEntity(dto, usuario);
 
@@ -118,7 +118,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public ResponseEntity<HttpStatus> updateById(Long id, UsuarioRequest dto) {
 
         try {
-            Usuario usuario = usuarioRepository.findById(id).orElse(null);
+            Usuarios usuario = usuarioRepository.findById(id).orElse(null);
 
             if (usuario == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -168,7 +168,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         try {
             String newpass = request.get("newPassword");
 
-            Usuario usuario = usuarioRepository.findById(id).orElse(null);
+            Usuarios usuario = usuarioRepository.findById(id).orElse(null);
             if (usuario == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }

@@ -19,15 +19,15 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuarios {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tipoidentidad_id")
-    private TipoIdentidad tipoIdentidad;
+    @JoinColumn(name = "tipoidentidades_id")
+    private TipoIdentidades tipoIdentidad;
 
     @Column(name = "nombreusuario")
     private String nombreUsuario;
@@ -49,13 +49,13 @@ public class Usuario {
 
     // --- RELACIÓN MANY TO MANY CON TIPO ROL ---
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "rolesxusuarios", joinColumns = @JoinColumn(name = "usuarios_id"), inverseJoinColumns = @JoinColumn(name = "tiporol_id"))
-    private List<TipoRol> roles;
+    @JoinTable(name = "roles_usuarios", joinColumns = @JoinColumn(name = "usuarios_id"), inverseJoinColumns = @JoinColumn(name = "tiporoles_id"))
+    private List<TipoRoles> roles;
 
     // --- RELACIÓN MANY TO MANY CON RAZON SOCIAL ---
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "razonxusuarios", joinColumns = @JoinColumn(name = "usuarios_id"), inverseJoinColumns = @JoinColumn(name = "razonsocial_id"))
-    private List<RazonSocial> razonesSociales;
+    @JoinTable(name = "razones_usuarios", joinColumns = @JoinColumn(name = "usuarios_id"), inverseJoinColumns = @JoinColumn(name = "razonessociales_id"))
+    private List<RazonesSociales> razonesSociales;
 
     public boolean isActivo() {
         // Consider `estado` == 1 as active, otherwise inactive

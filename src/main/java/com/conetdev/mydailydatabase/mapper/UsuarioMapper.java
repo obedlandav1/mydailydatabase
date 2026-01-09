@@ -1,8 +1,8 @@
 package com.conetdev.mydailydatabase.mapper;
 
-import com.conetdev.mydailydatabase.model.TipoIdentidad;
-import com.conetdev.mydailydatabase.model.TipoRol;
-import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.model.TipoIdentidades;
+import com.conetdev.mydailydatabase.model.TipoRoles;
+import com.conetdev.mydailydatabase.model.Usuarios;
 import com.conetdev.mydailydatabase.request.UsuarioRequest;
 import com.conetdev.mydailydatabase.response.UsuarioResponse;
 import org.mapstruct.Mapper;
@@ -28,11 +28,11 @@ public interface UsuarioMapper {
     @Mapping(source = "identidadUsuario", target = "identidad")
     @Mapping(source = "celularUsuario", target = "celular")
     @Mapping(source = "estado", target = "estado")
-    UsuarioResponse toUsuarioResponse(Usuario usuario);
+    UsuarioResponse toUsuarioResponse(Usuarios usuario);
 
-    UsuarioResponse.RoleDto toUsuarioResponseRole(TipoRol rol);
+    UsuarioResponse.RoleDto toUsuarioResponseRole(TipoRoles rol);
 
-    UsuarioResponse.TipoIdentidadDto toUsuarioResponseTipoIdentidad(TipoIdentidad tipo);
+    UsuarioResponse.TipoIdentidadDto toUsuarioResponseTipoIdentidad(TipoIdentidades tipo);
 
     /* ---------- DTO → Entity (creación) ---------- */
     @Mapping(source = "nombre", target = "nombreUsuario")
@@ -45,7 +45,7 @@ public interface UsuarioMapper {
     @Mapping(source = "tipoIdentidad", target = "tipoIdentidad")
     @Mapping(target = "razonesSociales", ignore = true)
     @Mapping(target = "id", ignore = true) // id is managed by JPA
-    Usuario toUsuarioEntity(UsuarioRequest dto);
+    Usuarios toUsuarioEntity(UsuarioRequest dto);
 
     /* ---------- DTO → Entity (actualización) ---------- */
     @Mapping(source = "nombre", target = "nombreUsuario")
@@ -57,10 +57,10 @@ public interface UsuarioMapper {
     @Mapping(source = "roles", target = "roles")
     @Mapping(source = "tipoIdentidad", target = "tipoIdentidad")
     @Mapping(target = "razonesSociales", ignore = true)
-    void toUsuarioEntity(UsuarioRequest dto, @MappingTarget Usuario entity);
+    void toUsuarioEntity(UsuarioRequest dto, @MappingTarget Usuarios entity);
 
     /* ---------- Sub‑mappings ---------- */
-    default List<TipoRol> mapRoles(Set<Long> roleIds) {
+    default List<TipoRoles> mapRoles(Set<Long> roleIds) {
         if (roleIds == null)
             return null;
         return roleIds.stream()
@@ -68,14 +68,14 @@ public interface UsuarioMapper {
                 .collect(Collectors.toList());
     }
 
-    default TipoRol toTipoRol(Long id) {
-        TipoRol rol = new TipoRol();
+    default TipoRoles toTipoRol(Long id) {
+        TipoRoles rol = new TipoRoles();
         rol.setId(id);
         return rol;
     }
 
-    default TipoIdentidad toTipoIdentidad(Long id) {
-        TipoIdentidad ti = new TipoIdentidad();
+    default TipoIdentidades toTipoIdentidad(Long id) {
+        TipoIdentidades ti = new TipoIdentidades();
         ti.setId(id);
         return ti;
     }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.conetdev.mydailydatabase.repository.UsuarioRepository;
 import com.conetdev.mydailydatabase.request.LoginRequest;
-import com.conetdev.mydailydatabase.model.Usuario;
+import com.conetdev.mydailydatabase.model.Usuarios;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,8 +54,8 @@ public class AuthController {
                         SecurityContextHolder.getContext());
 
                 // Guardar el username en sesión de una vez
-                Optional<Usuario> entidad = userRepository.findByIdentidadUsuario(loginRequest.getUsername());
-                Usuario u = entidad.get();
+                Optional<Usuarios> entidad = userRepository.findByIdentidadUsuario(loginRequest.getUsername());
+                Usuarios u = entidad.get();
                 session.setAttribute("id", u.getId());
                 session.setAttribute("username", u.getIdentidadUsuario());
                 session.setAttribute("fullname", u.getNombreUsuario() + " " + u.getApellidoUsuario());
