@@ -24,6 +24,7 @@
             <button type="submit" class="btn btn-primary">Ingresar</button>
         </form>
         <div th:replace="~{fragments/modals :: general}"></div>
+        <div th:replace="~{fragments/modals :: empresas}"></div>
         <div th:replace="~{fragments/modals :: roles}"></div>
         <div th:replace="~{fragments/modals :: error}"></div>
     </div>
@@ -39,7 +40,9 @@
                     password: '',
                     // VARIABLES ROL
                     roles: [],
+                    empresas: [],
                     rolSeleccionado: '',
+                    empresaSeleccionada: '',
                     // VARIABLES GENERALES
                     modalTitulo: '',
                     modalMensaje: '',
@@ -53,6 +56,12 @@
                     this.modalMensaje = mensaje;
                     this.modalTipo = tipo;
                     this.mostrarModal('modalRols');
+                },
+                modalEmpresa(titulo, mensaje, tipo) {
+                    this.modalTitulo = titulo;
+                    this.modalMensaje = mensaje;
+                    this.modalTipo = tipo;
+                    this.mostrarModal('modalEmpresas');
                 },
                 modalGeneral(titulo, mensaje, tipo) {
                     this.modalTitulo = titulo;
@@ -106,14 +115,16 @@
 
                     axios.post('/api/v1/auth/login', payload, config)
                         .then(response => {
-                            const data = response.data;
-                            this.user = data;
-                            if (data.roles && data.roles.length > 1) {
-                                this.roles = data.roles;
+                            this.user = response.data;
+                            const rols = this.user.roles;
+
+                            if (rols && rols.length === 1) {
+                                this.rolSeleccionado = rols[0].id;
+                                this.elegirRol();
+                            } else if (rols && rols.length > 1) {
+                                this.roles = rols;
                                 this.modalRol('Seleccione su rol', 'Tienes más de un rol asignado. Elige con cuál deseas iniciar sesión:', 'text-warning');
                                 return;
-                            } else if (data.roles && data.roles.length === 1) {
-                                this.acceder(data.roles[0].id);
                             } else {
                                 this.modalGeneral('Error', 'El usuario no tiene roles asignados.', 'text-danger');
                             }
@@ -138,9 +149,26 @@
                 },
                 elegirRol() {
                     this.ocultarModal('modalRols');
-                    this.acceder(this.rolSeleccionado);
+
+                    const comp = this.user.empresas;
+
+                    if (this.rolSeleccionado === 1) {
+                        this.accederAdmin(this.rolSeleccionado);
+                    } else if (comp && comp.length === 1) {
+                        this.acceder(this.rolSeleccionado, comp[0].id);
+                    } else if (comp && comp.length > 1) {
+                        this.empresas = comp;
+                        this.modalEmpresa('Existe mas de empresa asignada', 'Tienes más de una empresa. Elige con cuál deseas iniciar sesión:', 'text-warning');
+                        return;
+                    } else {
+                        this.modalGeneral('Error', 'El usuario no tiene empresas asignadas.', 'text-danger');
+                    }
                 },
-                acceder(rolId) {
+                elegirEmpresa() {
+                    this.ocultarModal('modalEmpresas');
+                    this.acceder(this.rolSeleccionado, this.empresaSeleccionada);
+                },
+                accederAdmin(rolId) {
                     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
@@ -156,10 +184,66 @@
 
                     const payload = {
                         idrol: rolId,
-                        nomrol: rol.nombreLargo
+                        nomrol: rol.nombreLargo,
                     };
 
-                    axios.post('/api/v1/auth/rol', payload, config)
+                    axios.post('/api/v1/auth/session-user', payload, config)
+                        .then(response => {
+                            this.modalGeneral('Bienvenido', 'Inicio de sesión exitoso. Redirigiendo...', 'text-success');
+                            setTimeout(() => {
+                                this.ocultarModal('modalGeneral');
+                                window.location.href = response.data.redirect;
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error("Error al fijar rol", error);
+                            if (error.response) {
+                                switch (error.response.status) {
+                                    case 400:
+                                        this.modalGeneral('Error', 'Solicitud mal formada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 401:
+                                        this.modalGeneral('Error', 'Solicitud no autorizada, recargue la página.', 'text-danger');
+                                        break;
+                                    case 403:
+                                        this.modalGeneral('Error', 'Sesión no autorizada, vuelva a iniciar sesión.', 'text-warning');
+                                        break;
+                                    default:
+                                        this.modalGeneral('Error inesperado', 'Problema en el servidor.', 'text-muted');
+                                }
+                            } else {
+                                this.modalGeneral('Error de conexión', 'No se pudo contactar con el servidor.', 'text-danger');
+                            }
+                        });
+                },
+                acceder(rolId, empresaId) {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                    const rol = this.user.roles.find(r => r.id === rolId);
+                    if (!rol) {
+                        this.modalGeneral('Error', 'Rol no encontrado en la lista del usuario.', 'text-danger');
+                        return;
+                    }
+
+                    const emp = this.user.empresas.find(e => e.id === empresaId);
+                    if (!emp) {
+                        this.modalGeneral('Error', 'Empresa no encontrada en la lista de registro.', 'text-danger');
+                        return;
+                    }
+
+                    const config = {
+                        headers: { [csrfHeader]: csrfToken }
+                    };
+
+                    const payload = {
+                        idrol: rolId,
+                        nomrol: rol.nombreLargo,
+                        idempresa: empresaId,
+                        nomempresa: emp.nombreLargo
+                    };
+
+                    axios.post('/api/v1/auth/session-user', payload, config)
                         .then(response => {
                             this.modalGeneral('Bienvenido', 'Inicio de sesión exitoso. Redirigiendo...', 'text-success');
                             setTimeout(() => {

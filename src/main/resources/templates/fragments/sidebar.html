@@ -58,7 +58,7 @@
     <div class="offcanvas-body overflow-auto p-1">
         <ul class="nav nav-pills flex-column mb-auto">
             <!-- PROYECTOS -->
-            <li class="nav-item">
+            <li class="nav-item">/
                 <button
                     class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
                     data-bs-toggle="collapse" data-bs-target="#project" aria-expanded="false">
@@ -226,6 +226,22 @@
     <!-- CUERPO -->
     <div class="offcanvas-body overflow-auto p-1">
         <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <button
+                    class="btn w-100 text-start nav-link active link-dark d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#treasury" aria-expanded="false">
+                    <span><i class="bx bx-coins me-2"></i>Tesorería</span>
+                </button>
+                <div class="collapse ps-4 mt-1" id="treasury">
+                    <ul class="nav flex-column">
+                        <li><a href="#" class="nav-link link-dark small py-1">Caja y bancos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Ingresos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Egresos</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Rendiciones</a></li>
+                        <li><a href="#" class="nav-link link-dark small py-1">Est. de cuentas</a></li>
+                    </ul>
+                </div>
+            </li>
             <!-- CAJA Y BANCO - Categoría Principal -->
             <li class="nav-item">
                 <button
@@ -235,11 +251,16 @@
                 </button>
                 <div class="collapse ps-4 mt-1" id="cashbank">
                     <ul class="nav flex-column">
-                        <li><a th:href="@{/asistant/cashbank/cuentas}" class="nav-link link-dark small py-1">Cuentas</a></li>
-                        <li><a th:href="@{/asistant/cashbank/saldos}" class="nav-link link-dark small py-1">Saldos</a></li>
-                        <li><a th:href="@{/asistant/cashbank/movimientos}" class="nav-link link-dark small py-1">Movimientos</a></li>
-                        <li><a th:href="@{/asistant/cashbank/ingreso}" class="nav-link link-dark small py-1">Ingreso</a></li>
-                        <li><a th:href="@{/asistant/cashbank/retiro}" class="nav-link link-dark small py-1">Retiro</a></li>
+                        <li><a th:href="@{/asistant/cashbank/cuentas}" class="nav-link link-dark small py-1">Cuentas</a>
+                        </li>
+                        <li><a th:href="@{/asistant/cashbank/saldos}" class="nav-link link-dark small py-1">Saldos</a>
+                        </li>
+                        <li><a th:href="@{/asistant/cashbank/movimientos}"
+                                class="nav-link link-dark small py-1">Movimientos</a></li>
+                        <li><a th:href="@{/asistant/cashbank/ingreso}" class="nav-link link-dark small py-1">Ingreso</a>
+                        </li>
+                        <li><a th:href="@{/asistant/cashbank/retiro}" class="nav-link link-dark small py-1">Retiro</a>
+                        </li>
                     </ul>
                 </div>
             </li>

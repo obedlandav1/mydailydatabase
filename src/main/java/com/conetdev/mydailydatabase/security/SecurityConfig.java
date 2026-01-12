@@ -29,8 +29,12 @@ public class SecurityConfig {
                                 .csrf(Customizer.withDefaults())
 
                                 .authorizeHttpRequests(auth -> auth
-                                                // Permitir login y recursos estáticos
+                                                // 1. Permitir login, logout y recursos públicos (CSS, JS, imágenes,
+                                                // etc.)
                                                 .requestMatchers(
+                                                                "/api/v1/auth/login",
+                                                                "/api/v1/auth/logout",
+                                                                "/login",
                                                                 "/error",
                                                                 "/layouts/**",
                                                                 "/views/**",
@@ -38,9 +42,11 @@ public class SecurityConfig {
                                                                 "/fonts/**",
                                                                 "/img/**",
                                                                 "/js/**",
-                                                                "/svg/**",
-                                                                "/api/**")
+                                                                "/svg/**")
                                                 .permitAll()
+                                                // 2. Cualquier otra API requiere que el usuario esté logueado
+                                                .requestMatchers("/api/v1/**").authenticated()
+                                                // 3. El resto de la web también (vistas de Thymeleaf)
                                                 .anyRequest().authenticated())
 
                                 // Gestión de sesión explícita
